@@ -1,6 +1,5 @@
 namespace HaftpflichtDummy.DataProviders.Models.Database;
 
-public class Feature
+public class Feature : BaseTable
 {
-    
 }

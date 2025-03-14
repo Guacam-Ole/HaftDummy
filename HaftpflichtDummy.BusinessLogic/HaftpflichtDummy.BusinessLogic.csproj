@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\HaftpflichtDummy.DataProviders\HaftpflichtDummy.DataProviders.csproj" />
+      <ProjectReference Include="..\HaftpflichtDummy.Models\HaftpflichtDummy.Models.csproj" />
+    </ItemGroup>
+
+</Project>

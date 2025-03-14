@@ -1,19 +1,30 @@
 namespace HaftpflichtDummy.DataProviders.Repositories.Database;
 
-public class Insurer:IInsuranceDatabase, IInsurer
+public class Insurer: IInsurer
 {
-    public Task<IEnumerable<Insurer>> GetAllInsurers()
+    private readonly FakeDb _fakeDb;
+
+    public Insurer(FakeDb fakeDb)
     {
-        throw new NotImplementedException();
+        _fakeDb = fakeDb;
+    }
+    
+    public async Task<IEnumerable<Models.Database.Insurer>> GetAllInsurers()
+    {
+        return await _fakeDb.ListItems<Models.Database.Insurer>();
     }
 
-    public Task<Insurer> GetInsurerByName()
+    public async Task<Models.Database.Insurer?> GetInsurerByName(string insurer)
     {
-        throw new NotImplementedException();
+        var allInsurers = await GetAllInsurers();
+        return allInsurers.SingleOrDefault(q => q.Name == insurer);
     }
 
-    public Task<int> AddInsurer(Insurer insurer)
+    public async Task AddInsurer(Models.Database.Insurer insurer)
     {
-        throw new NotImplementedException();
+        var existingInsurers = await GetAllInsurers();
+        if (existingInsurers.Any(q => q.Name == insurer.Name))
+            throw new System.Data.DuplicateNameException("An insurer with this name already exists");
+        await _fakeDb.InsertItem(insurer);
     }
 }

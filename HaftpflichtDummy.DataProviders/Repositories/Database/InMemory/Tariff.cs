@@ -1,26 +1,38 @@
-using HaftpflichtDummy.DataProviders.Models.Database;
-
 namespace HaftpflichtDummy.DataProviders.Repositories.Database;
 
-public class Tariff:IInsuranceDatabase, ITariff
+public class Tariff : ITariff
 {
-    public Task<IEnumerable<Models.Database.Tariff>> GetAllTariffs()
+    private readonly FakeDb _fakeDb;
+
+    public Tariff(FakeDb fakeDb)
     {
-        throw new NotImplementedException();
+        _fakeDb = fakeDb;
     }
 
-    public Task<IEnumerable<Models.Database.Tariff>> GetAllTariffsByInsurerId()
+    public async Task<IEnumerable<Models.Database.Tariff>> GetAllTariffs()
     {
-        throw new NotImplementedException();
+        return await _fakeDb.ListItems<Models.Database.Tariff>();
     }
 
-    public Task<Models.Database.Tariff> GetTariffById()
+    public async Task<IEnumerable<Models.Database.Tariff?>> GetAllTariffsByInsurerId(int insurerId)
     {
-        throw new NotImplementedException();
+        var allTariffs = await GetAllTariffs();
+        return allTariffs.Where(t => t.Insurer == insurerId);
     }
 
-    public Task UpdateTariff(Models.Database.Tariff tariff)
+    public async Task<Models.Database.Tariff?> GetTariffById(int tariffId)
     {
-        throw new NotImplementedException();
+        var allTariffs = await GetAllTariffs();
+        return allTariffs.SingleOrDefault(t => t.Id == tariffId);
+    }
+
+    public async Task UpdateTariff(Models.Database.Tariff tariff)
+    {
+        await _fakeDb.UpdateItem(tariff.Id, tariff);
+    }
+
+    public async Task InsertTariff(Models.Database.Tariff tariff)
+    {
+        await _fakeDb.InsertItem(tariff);
     }
 }
