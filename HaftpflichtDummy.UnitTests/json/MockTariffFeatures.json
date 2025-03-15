@@ -1,0 +1,47 @@
+[
+  {
+    "tariffId": 1,
+    "featureId": 1,
+    "isActive": false
+  },
+  {
+    "tariffId": 2,
+    "featureId": 1,
+    "isActive": true
+  },
+  {
+    "tariffId": 2,
+    "featureId": 2,
+    "isActive": true
+  },
+  {
+    "tariffId": 2,
+    "featureId": 3,
+    "isActive": false
+  },
+  {
+    "tariffId": 1,
+    "featureId": 4,
+    "isActive": true
+  },
+  {
+    "tariffId": 1,
+    "featureId": 5,
+    "isActive": true
+  },
+  {
+    "tariffId": 2,
+    "featureId": 6,
+    "isActive": true
+  },
+  {
+    "tariffId": 2,
+    "featureId": 7,
+    "isActive": false
+  },
+  {
+    "tariffId": 4,
+    "featureId": 8,
+    "isActive": true
+  }
+]

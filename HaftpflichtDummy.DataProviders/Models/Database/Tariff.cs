@@ -9,5 +9,5 @@ public class Tariff:BaseTable
     public int? ParentTariff { get; set; }
 
     public DateTime ValidFrom { get; set; }
-    public decimal Premium { get; set; }
+    public decimal Provision { get; set; }
 }

@@ -7,7 +7,7 @@ public class Tariff
 
     public int Insurer { get; set; }
     public int? Parent { get; set; }
-    public decimal Premium { get; set; }
+    public decimal Provision { get; set; }
     public DateTime ValidFrom { get; set; }
 
     public List<Feature> Features { get; } = [];

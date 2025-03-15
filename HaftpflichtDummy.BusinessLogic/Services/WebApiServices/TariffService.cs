@@ -4,17 +4,20 @@ using HaftpflichtDummy.BusinessLogic.Services.WebApiServices.Interfaces;
 using HaftpflichtDummy.DataProviders.Models.Database;
 using HaftpflichtDummy.DataProviders.Repositories.Database.Interfaces;
 using HaftpflichtDummy.Models;
+using Microsoft.Extensions.Logging;
 using Tariff = HaftpflichtDummy.Models.Tariff;
 
 namespace HaftpflichtDummy.BusinessLogic.Services.WebApiServices;
 
 public class TariffService : ITariffService
 {
+    private readonly ILogger<TariffService> _logger;
     private readonly ITariff _databaseTariff;
     private readonly IInsurer _databaseInsurer;
 
-    public TariffService(ITariff databaseTariff, IInsurer databaseInsurer)
+    public TariffService(ILogger<TariffService> logger, ITariff databaseTariff, IInsurer databaseInsurer)
     {
+        _logger = logger;
         _databaseTariff = databaseTariff;
         _databaseInsurer = databaseInsurer;
     }
@@ -26,7 +29,7 @@ public class TariffService : ITariffService
             Name = tariff.Name,
             Insurer = tariff.Insurer,
             ParentTariff = tariff.Parent,
-            Premium = tariff.Premium,
+            Provision = tariff.Provision,
             ValidFrom = tariff.ValidFrom
         });
 
@@ -58,7 +61,7 @@ public class TariffService : ITariffService
             Insurer = tariff.Insurer,
             Name = tariff.Name,
             ParentTariff = tariff.Parent,
-            Premium = tariff.Premium,
+            Provision = tariff.Provision,
             ValidFrom = tariff.ValidFrom
         });
 
@@ -90,8 +93,8 @@ public class TariffService : ITariffService
 
                 TariffId = q.Id,
                 TariffName = q.Name,
-                BasePremium = q.Premium,
-                TotalPremium = q.Premium,
+                BasePremium = q.Provision,
+                TotalPremium = q.Provision,
                 Features = q.ActiveFeatures.Select(f => f.Name).ToList()
             }
         ));
@@ -108,8 +111,8 @@ public class TariffService : ITariffService
                     TariffId = parent.TariffId,
                     TariffName = parent.TariffName,
                     BasePremium = parent.BasePremium,
-                    ModulePremium = moduleTariff.Premium,
-                    TotalPremium = parent.BasePremium + moduleTariff.Premium,
+                    ModulePremium = moduleTariff.Provision,
+                    TotalPremium = parent.BasePremium + moduleTariff.Provision,
                     Features = parent.Features,
                     TariffModuleId = moduleTariff.Id,
                     TariffModuleName = moduleTariff.Name
