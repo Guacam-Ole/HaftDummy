@@ -1,3 +1,5 @@
+using HaftpflichtDummy.DataProviders.Repositories.Database.Interfaces;
+
 namespace HaftpflichtDummy.DataProviders.Repositories.Database;
 
 public class Insurer: IInsurer
@@ -25,6 +27,7 @@ public class Insurer: IInsurer
         var existingInsurers = await GetAllInsurers();
         if (existingInsurers.Any(q => q.Name == insurer.Name))
             throw new System.Data.DuplicateNameException("An insurer with this name already exists");
+        insurer.Id = _fakeDb.GetNextId<Models.Database.Insurer>();
         await _fakeDb.InsertItem(insurer);
     }
 }

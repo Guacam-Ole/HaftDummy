@@ -3,9 +3,10 @@ using HaftpflichtDummy.DataProviders.Models.Database;
 
 namespace HaftpflichtDummy.DataProviders.Repositories.Database;
 
+// TODO: Das sollte nicht als Teil des Projekts angesehen werden, sondern die Simulation einer (sehr inperformanten) Datenbank
 public class FakeDb
 {
-    private static Dictionary<string, List<object>> Database;
+    private static readonly Dictionary<string, List<object>> Database = new();
 
     public async Task InsertItem<T>(T item)
     {
@@ -18,6 +19,25 @@ public class FakeDb
             // TODO: Das ist natürlich nicht wirklich async
             Database[tableName].Add(item)
         );
+    }
+
+    public async Task RemoveItem(TariffFeature item)
+    {
+        if (!Database.TryGetValue(nameof(TariffFeature), out var value)) throw new KeyNotFoundException();
+        var elements = value.Select(tf => (TariffFeature)tf).ToList();
+        var existingItem =
+            elements.FirstOrDefault(tf => tf.FeatureId == item.FeatureId && tf.TariffId == item.TariffId);
+        if (existingItem == null) throw new KeyNotFoundException();
+        await Task.Run(() => value.RemoveAt(elements.IndexOf(existingItem)));
+    }
+
+    public async Task RemoveItem<T>(T item) where T : BaseTable
+    {
+        if (!Database.TryGetValue(typeof(T).Name, out var value)) throw new KeyNotFoundException();
+        var elements = value.Select(q => (T)q).ToList();
+        var existingItem = elements.FirstOrDefault(q => q.Id == item.Id);
+        if (existingItem == null) throw new KeyNotFoundException();
+        await Task.Run(() => value.RemoveAt(elements.IndexOf(existingItem)));
     }
 
     public async Task<IEnumerable<T>> ListItems<T>()

@@ -1,10 +1,9 @@
-
-namespace HaftpflichtDummy.DataProviders.Repositories.Database;
+namespace HaftpflichtDummy.DataProviders.Repositories.Database.Interfaces;
 
 public interface IInsurer
 {
     // TODO: Aufrufe sind nicht wirklich async in der Fake-DB. Da aber der echte DB-Zugriff async sein wird ist das Interface entsprechend
-    
+
     /// <summary>
     /// Liefert alle verfügbaren Gesellschaften
     /// </summary>
@@ -23,7 +22,4 @@ public interface IInsurer
     /// <param name="insurer">Gesellschaft</param>
     /// <exception cref="System.Data.DuplicateNameException">Wird geworfen wenn eine Gesellschaft mit dem Namen bereits existiert</exception>
     Task AddInsurer(Models.Database.Insurer insurer);
-
 }
-
-  

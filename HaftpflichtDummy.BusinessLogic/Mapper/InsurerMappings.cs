@@ -5,9 +5,9 @@ using DbModels = HaftpflichtDummy.DataProviders.Models.Database;
 public static class InsurerMappings
 {
     public static Models.Insurer MapToInsurer(this DbModels.Insurer insurer)
-        => new Models.Insurer
-        {
-            Name = insurer.Name,
-            Id = insurer.Id
-        };
+        =>  new Models.Insurer
+            {
+                Name = insurer.Name,
+                Id = insurer.Id
+            };
 }
