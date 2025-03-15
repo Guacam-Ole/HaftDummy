@@ -6,6 +6,8 @@ using HaftpflichtDummy.DataProviders.Repositories.Database.Interfaces;
 using HaftpflichtDummy.Models;
 using Microsoft.Extensions.Logging;
 using Tariff = HaftpflichtDummy.Models.Tariff;
+using HaftpflichtDummy.BusinessLogic.Services.WebApiServices;
+using Feature = HaftpflichtDummy.Models.Feature;
 
 namespace HaftpflichtDummy.BusinessLogic.Services.WebApiServices;
 
@@ -24,6 +26,19 @@ public class TariffService : ITariffService
 
     public async Task<Tariff> CreateTariff(Tariff tariff)
     {
+        var existingFeatures = await _databaseTariff.GetAllFeatures();
+        var existingFeatureIds = existingFeatures.Select(feature => feature.Id);
+        var missingFeatures = tariff.Features.Where(
+            feature => !existingFeatureIds.Contains(feature.Id)
+        ).ToList();
+        if (missingFeatures.Count != 0)
+        {
+            _logger.LogError(
+                "Cannot add Tariff '{TariffName}' because the following Feature(s) do not exist: '{FeatureNames}'",
+                tariff.Name, string.Join(',', missingFeatures.Select(feature => feature.Name)));
+            throw new KeyNotFoundException("At least one Feature is missing.");
+        }
+
         var tariffId = await _databaseTariff.InsertTariff(new DataProviders.Models.Database.Tariff
         {
             Name = tariff.Name,
@@ -80,12 +95,12 @@ public class TariffService : ITariffService
         var allDbTariffFeatures = await _databaseTariff.GetAllTariffFeatures();
         var allDbInsureres = await _databaseInsurer.GetAllInsurers();
 
-        var allTariffs = allDbTariffs.Select(dbt => dbt.MapToTariff(allDbTariffFeatures, allDbFeatures.ToList()))
+        var activeTariffs = allDbTariffs.Where(dbt=>dbt.ValidFrom<=DateTime.Today).Select(dbt => dbt.MapToTariff(allDbTariffFeatures, allDbFeatures.ToList()))
             .ToList();
         var allInsurers = allDbInsureres.Select(dbi => dbi.MapToInsurer());
 
         // Adding base Tariffs without Modules:
-        calculations.AddRange(allTariffs.Where(t => t.Parent == null).Select(q =>
+        calculations.AddRange(activeTariffs.Where(t => t.Parent == null).Select(q =>
             new TariffCalculation
             {
                 InsurerId = q.Insurer,
@@ -93,14 +108,14 @@ public class TariffService : ITariffService
 
                 TariffId = q.Id,
                 TariffName = q.Name,
-                BasePremium = q.Provision,
-                TotalPremium = q.Provision,
-                Features = q.ActiveFeatures.Select(f => f.Name).ToList()
+                BaseProvision = q.Provision,
+                TotalProvision = q.Provision,
+                Features = q.Features.Clone()
             }
         ));
 
         // Adding moduleTariffs:
-        foreach (var moduleTariff in allTariffs.Where(t => t.Parent != null))
+        foreach (var moduleTariff in activeTariffs.Where(t => t.Parent != null))
         {
             var parent = calculations.Single(p => p.TariffId == moduleTariff.Parent);
             var moduleCalculation =
@@ -110,14 +125,28 @@ public class TariffService : ITariffService
                     InsurerName = parent.InsurerName,
                     TariffId = parent.TariffId,
                     TariffName = parent.TariffName,
-                    BasePremium = parent.BasePremium,
-                    ModulePremium = moduleTariff.Provision,
-                    TotalPremium = parent.BasePremium + moduleTariff.Provision,
-                    Features = parent.Features,
+                    BaseProvision = parent.BaseProvision,
+                    ModuleProvision = moduleTariff.Provision,
+                    TotalProvision = parent.TotalProvision + moduleTariff.Provision,
                     TariffModuleId = moduleTariff.Id,
-                    TariffModuleName = moduleTariff.Name
+                    TariffModuleName = moduleTariff.Name,
+                    Features = parent.Features.Clone()
                 };
-            moduleCalculation.Features.AddRange(moduleTariff.Features.Select(f => f.Name));
+            
+            
+            
+            // Add additional Features:
+            foreach (var moduleFeature in moduleTariff.Features.Where(moduleFeature => moduleCalculation.Features.All(feature => feature.Id != moduleFeature.Id)))
+            {
+                moduleCalculation.Features.Add(moduleFeature);
+            }
+            
+            // Enable added Features
+            foreach (var activeModuleFeature in moduleTariff.ActiveFeatures)
+            {
+                moduleCalculation.Features.First(feature => feature.Id == activeModuleFeature.Id).IsEnabled = true;
+            }
+            
             calculations.Add(moduleCalculation);
         }
 

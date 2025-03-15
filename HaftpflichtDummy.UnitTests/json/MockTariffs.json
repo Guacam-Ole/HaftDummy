@@ -23,9 +23,10 @@
     },
     {
         "id": 4,
-        "name": "Safe Workspace Insurance",
+        "name": "Safe Workspace Paket",
         "insurer": 2,
         "validFrom": "1900-01-01",
         "provision": 450
     }
+    
 ]

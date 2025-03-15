@@ -9,18 +9,22 @@ using DbModels = HaftpflichtDummy.DataProviders.Models.Database;
 public static class TariffMappings
 {
     public static Tariff MapToTariff(this DbModels.Tariff tariff)
-        => new Tariff
-            {
-                Name = tariff.Name,
-                Id = tariff.Id
-            };
+        => new()
+        {
+            Name = tariff.Name,
+            Id = tariff.Id,
+            Insurer = tariff.Insurer,
+            Parent = tariff.ParentTariff,
+            Provision = tariff.Provision,
+            ValidFrom = tariff.ValidFrom
+        };
 
     public static Tariff MapToTariff(this DbModels.Tariff tariff,
         IEnumerable<DbModels.TariffFeature> tariffFeatures, List<DbModels.Feature> features)
     {
         var retTariff = MapToTariff(tariff);
         retTariff.Features.AddRange(
-            tariffFeatures.Select(tariffFeature =>
+            tariffFeatures.Where(feature=>feature.TariffId==tariff.Id).Select(tariffFeature =>
                 features.First(f => f.Id == tariffFeature.FeatureId)
                     .MapToFeature(tariffFeature.IsActive))
         );
