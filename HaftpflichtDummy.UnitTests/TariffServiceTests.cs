@@ -16,13 +16,16 @@ public class TariffServiceTests
     private readonly IInsurer _dbInsurer;
     private readonly TariffService _tariffService;
     private readonly ILogger<TariffService> _logger;
+    private readonly PayloadService _payloadService;
 
     public TariffServiceTests()
     {
         _logger = Substitute.For<ILogger<TariffService>>();
         _dbTariff = Substitute.For<ITariff>();
         _dbInsurer = Substitute.For<IInsurer>();
-        _tariffService = new TariffService(_logger, _dbTariff, _dbInsurer);
+        
+        _payloadService = Substitute.For<PayloadService>(Substitute.For<ILogger<PayloadService>>());
+        _tariffService = new TariffService(_logger, _dbTariff, _dbInsurer, _payloadService);
     }
 
     private void MockDataBase()
@@ -45,7 +48,7 @@ public class TariffServiceTests
     }
 
     [Fact]
-    private async Task CreateTariffCallsDatabase()
+    private async Task CreateTariffShouldCallDatabase()
     {
         MockDataBase();
 
@@ -88,11 +91,11 @@ public class TariffServiceTests
                 feature.TariffId == 5));
 
         Assert.NotNull(newTariff);
-        Assert.Equal(5, newTariff.Id);
+        Assert.Equal(5, newTariff.ResponseObject!.Id);
     }
 
     [Fact]
-    private async Task CreatingTariffWithMissingFeatureThrowsError()
+    private async Task CreatingTariffWithMissingFeatureShouldReturnError()
     {
         MockDataBase();
 
@@ -113,19 +116,23 @@ public class TariffServiceTests
             ]
         );
 
-        // Check if an exception is thrown
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => _tariffService.CreateTariff(tariffToAdd));
+        
+       await  _tariffService.CreateTariff(tariffToAdd);
+        
+        // Check if an error is returned
+        _payloadService.ReceivedWithAnyArgs().CreateError<Tariff>(default, default);
         // No Database-Insert should be happening
         await _dbTariff.DidNotReceive().InsertTariff(Arg.Any<DbModels.Tariff>());
+        
         // Make sure an error has been logged
-        _logger.ReceivedWithAnyArgs(1).LogError("");
+        _logger.ReceivedWithAnyArgs().LogError("");
     }
 
     [Fact]
     private async Task CalculationsShouldBeCorrect()
     {
         MockDataBase();
-        var calculations = (await _tariffService.CalculateAllTariffs()).ToList();
+        var calculations = (await _tariffService.CalculateAllTariffs()).ResponseObject!;
         Assert.Equal(3, calculations.Count);
 
         // Tariff 1 (Main Tariff)

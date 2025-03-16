@@ -20,7 +20,7 @@ public class InsurerServiceTests
     {
         _insurerLogger = Substitute.For<ILogger<InsurerService>>();
         _dbInsurer = Substitute.For<IInsurer>();
-        _insurerService = new InsurerService(_insurerLogger, _dbInsurer);
+        _insurerService = new InsurerService(_insurerLogger, _dbInsurer, Substitute.For<PayloadService>());
     }
 
     private void MockDataBase()
@@ -83,7 +83,7 @@ public class InsurerServiceTests
     public async Task InsurersGetCorrectlyMappedAndReturned()
     {
         MockDataBase();
-        var allInsurers = (await _insurerService.GetAll()).ToList();
+        var allInsurers = (await _insurerService.GetAll()).ResponseObject!.ToList();
 
         var firstMatch = allInsurers.FirstOrDefault(q => q.Name.Contains("Stan") && q.Id == 1);
         var secondMatch = allInsurers.FirstOrDefault(q => q.Name.Contains("Umbrella") && q.Id == 2);

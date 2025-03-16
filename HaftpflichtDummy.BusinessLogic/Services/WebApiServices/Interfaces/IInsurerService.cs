@@ -5,8 +5,6 @@ namespace HaftpflichtDummy.BusinessLogic.Services.WebApiServices.Interfaces;
 
 public interface IInsurerService
 {
-    Task CreateInsurer(Insurer insurer);
-    Task<IEnumerable<Insurer>> GetAll();
-    
-
+    Task<Payload<Insurer>> CreateInsurer(Insurer insurer);
+    Task<Payload<List<Insurer>>> GetAll();
 }

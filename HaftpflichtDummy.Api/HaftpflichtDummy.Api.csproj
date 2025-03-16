@@ -12,4 +12,9 @@
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\HaftpflichtDummy.BusinessLogic\HaftpflichtDummy.BusinessLogic.csproj" />
+      <ProjectReference Include="..\HaftpflichtDummy.DataProviders\HaftpflichtDummy.DataProviders.csproj" />
+    </ItemGroup>
+
 </Project>
