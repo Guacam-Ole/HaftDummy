@@ -36,8 +36,8 @@ public class TariffService : ITariffService
         if (missingFeatures.Count != 0)
         {
             _logger.LogError(
-                "Cannot add Tariff '{TariffName}' because the following Feature(s) do not exist: '{FeatureNames}'",
-                tariffInput.Name, string.Join(',', missingFeatures.Select(feature => feature.Name)));
+                "Cannot add Tariff '{TariffName}' because the following Feature(s) do not exist: '{FeatureIds}'",
+                tariffInput.Name, string.Join(',', missingFeatures.Select(feature => feature.Id)));
             return _payloadService.CreateError<Tariff>("Mindestens eines der Features fehlt");
         }
 

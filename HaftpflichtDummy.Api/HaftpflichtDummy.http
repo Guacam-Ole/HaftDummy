@@ -1,6 +1,6 @@
 @HaftpflichtDummy_HostAddress = http://localhost:5274
 
-GET {{HaftpflichtDummy_HostAddress}}/whatever/
+GET {{HaftpflichtDummy_HostAddress}}/api/tarife/
 Accept: application/json
 
 ###

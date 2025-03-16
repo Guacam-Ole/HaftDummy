@@ -61,17 +61,15 @@ public class TariffServiceTests
             ValidFrom = new DateTime(1901, 01, 01)
         };
         tariffToAdd.Features.AddRange([
-                new Feature
+                new TariffInputFeature
                 {
                     Id = 9,
-                    IsEnabled = true,
-                    Name = "Büro Plus"
+                    IsEnabled = true
                 },
-                new Feature
+                new TariffInputFeature
                 {
                     Id = 8,
                     IsEnabled = true,
-                    Name = "BürohaftPflicht"
                 }
             ]
         );
@@ -111,11 +109,10 @@ public class TariffServiceTests
             ValidFrom = new DateTime(1901, 01, 01)
         };
         tariffToAdd.Features.AddRange([
-                new Feature
+                new TariffInputFeature
                 {
                     Id = 99,
-                    IsEnabled = true,
-                    Name = "Büro Plus"
+                    IsEnabled = true
                 }
             ]
         );
@@ -154,7 +151,9 @@ public class TariffServiceTests
     {
         MockDataBase();
 
-        var calculations = (await _tariffService.CalculateAllTariffs(new CalculateTariffsInput{ RequiredFeatures = [] })).ResponseObject!;
+        var calculations =
+            (await _tariffService.CalculateAllTariffs(new CalculateTariffsInput { RequiredFeatures = [] }))
+            .ResponseObject!;
 
         Assert.Equal(3, calculations.Count);
 

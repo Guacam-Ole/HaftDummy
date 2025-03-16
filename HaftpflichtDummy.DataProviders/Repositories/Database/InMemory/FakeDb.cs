@@ -15,6 +15,11 @@ public class FakeDb
         Database[table] = contents.Select(itm=>(object)(T)itm).ToList(); //.Select(itm => (object)itm).ToList();
     }
 
+    public void Empty()
+    {
+        Database.Clear();
+    }
+
     public async Task<T> InsertItem<T>(T item)
     {
         if (item == null) throw new ArgumentNullException(nameof(item));

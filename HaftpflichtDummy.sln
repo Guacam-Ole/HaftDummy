@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HaftpflichtDummy.Models", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HaftpflichtDummy.UnitTests", "HaftpflichtDummy.UnitTests\HaftpflichtDummy.UnitTests.csproj", "{9F7424BD-D34C-42BB-BC61-7C723975DFD4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HaftpflichtDummy.IntegrationTests", "HaftpflichtDummy.IntegrationTests\HaftpflichtDummy.IntegrationTests.csproj", "{72788EAA-3677-4C9C-9949-12AF44C95723}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{9F7424BD-D34C-42BB-BC61-7C723975DFD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F7424BD-D34C-42BB-BC61-7C723975DFD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F7424BD-D34C-42BB-BC61-7C723975DFD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72788EAA-3677-4C9C-9949-12AF44C95723}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72788EAA-3677-4C9C-9949-12AF44C95723}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72788EAA-3677-4C9C-9949-12AF44C95723}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72788EAA-3677-4C9C-9949-12AF44C95723}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

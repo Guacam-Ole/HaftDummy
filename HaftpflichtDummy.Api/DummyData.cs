@@ -5,10 +5,9 @@ namespace HaftpflichtDummy.Api;
 
 public static class DummyData
 {
-    public static void LoadDummyData(WebApplication app)
+    public static void LoadDummyData(FakeDb fakeDb)
     {
         // Quick&Dirty dummydaten einfügen
-        var fakeDb = app.Services.GetService<FakeDb>();
 
         fakeDb.BulkReplace("Feature",
             JsonConvert.DeserializeObject<List<HaftpflichtDummy.DataProviders.Models.Database.Feature>>(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,

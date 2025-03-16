@@ -7,5 +7,11 @@ public class CreateOrUpdateTariffInput
     public int? Parent { get; set; }
     public decimal Provision { get; set; }
     public DateTime ValidFrom { get; set; }
-    public List<Feature> Features { get; } = [];    
+    public List<TariffInputFeature> Features { get; set; } = [];    
+}
+
+public class TariffInputFeature
+{
+    public int Id { get; set; }
+    public bool IsEnabled { get; set; }
 }

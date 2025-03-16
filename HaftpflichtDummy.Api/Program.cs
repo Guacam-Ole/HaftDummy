@@ -31,5 +31,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-DummyData.LoadDummyData(app);
+
 app.Run();
