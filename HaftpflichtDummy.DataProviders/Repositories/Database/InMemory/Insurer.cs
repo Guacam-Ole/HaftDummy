@@ -11,23 +11,24 @@ public class Insurer: IInsurer
         _fakeDb = fakeDb;
     }
     
-    public async Task<IEnumerable<Models.Database.Insurer>> GetAllInsurers()
+    public async Task<IEnumerable<Models.Database.Insurer>> SelectAllInsurers()
     {
         return await _fakeDb.ListItems<Models.Database.Insurer>();
     }
 
-    public async Task<Models.Database.Insurer?> GetInsurerByName(string insurer)
+    public async Task<Models.Database.Insurer?> SelectInsurerByName(string insurer)
     {
-        var allInsurers = await GetAllInsurers();
+        var allInsurers = await SelectAllInsurers();
         return allInsurers.SingleOrDefault(q => q.Name == insurer);
     }
 
-    public async Task AddInsurer(Models.Database.Insurer insurer)
+    public async Task<int> InsertInsurer(Models.Database.Insurer insurer)
     {
-        var existingInsurers = await GetAllInsurers();
+        var existingInsurers = await SelectAllInsurers();
         if (existingInsurers.Any(q => q.Name == insurer.Name))
             throw new System.Data.DuplicateNameException("An insurer with this name already exists");
         insurer.Id = _fakeDb.GetNextId<Models.Database.Insurer>();
         await _fakeDb.InsertItem(insurer);
+        return insurer.Id;
     }
 }

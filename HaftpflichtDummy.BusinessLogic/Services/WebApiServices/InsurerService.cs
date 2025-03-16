@@ -19,27 +19,27 @@ public class InsurerService : IInsurerService
         _payloadService = payloadService;
     }
 
-    public async Task<Payload<Insurer>> CreateInsurer(Insurer insurer)
+    public async Task<Payload<Insurer>> CreateInsurer(string insurerName)
     {
         try
         {
-            await _databaseInsurer.AddInsurer(new DataProviders.Models.Database.Insurer
+            var insurerId = await _databaseInsurer.InsertInsurer(new DataProviders.Models.Database.Insurer
             {
-                Name = insurer.Name
+                Name = insurerName
             });
-            _logger.LogDebug("New Insurer '{InsurerName}' created in Database", insurer.Name);
-            return _payloadService.CreateSuccess(insurer);
+            _logger.LogDebug("New Insurer '{InsurerName}' created in Database", insurerName);
+            return _payloadService.CreateSuccess(new Insurer { Id = insurerId, Name = insurerName });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to create insurer '{InsurerName}'", insurer.Name);
-            return  _payloadService.CreateError<Insurer>("Database Error");
+            _logger.LogError(ex, "Failed to create insurer '{InsurerName}'", insurerName);
+            return _payloadService.CreateError<Insurer>("Database Error");
         }
     }
 
     public async Task<Payload<List<Insurer>>> GetAll()
     {
-        var insurers = (await _databaseInsurer.GetAllInsurers()).Select(q => q.MapToInsurer());
+        var insurers = (await _databaseInsurer.SelectAllInsurers()).Select(q => q.MapToInsurer());
         return _payloadService.CreateSuccess(insurers.ToList());
     }
 }

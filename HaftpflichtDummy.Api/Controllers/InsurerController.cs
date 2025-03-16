@@ -1,5 +1,6 @@
 using HaftpflichtDummy.BusinessLogic.Services.WebApiServices.Interfaces;
 using HaftpflichtDummy.Models;
+using HaftpflichtDummy.Models.InputModels;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -18,7 +19,7 @@ public class InsurerController : Controller
         _insurerService = insurerService;
     }
 
-    [SwaggerOperation("Liefert alle verfügbaren Geselleschaften")]
+    [SwaggerOperation("Liefert alle verfügbaren Gesellschaften")]
     [HttpGet]
     public async Task<IActionResult> Get()
     {
@@ -27,8 +28,8 @@ public class InsurerController : Controller
 
     [SwaggerOperation("Fügt eine neue Gesellschaft hinzu")]
     [HttpPost]
-    public async Task<IActionResult> Post([FromBody] Insurer insurer)
+    public async Task<IActionResult> Post([FromBody] CreateOrUpdateInsurerInput orUpdateInsurer)
     {
-        return Ok(await _insurerService.CreateInsurer(insurer));
+        return Ok(await _insurerService.CreateInsurer(orUpdateInsurer.Name));
     }
 }

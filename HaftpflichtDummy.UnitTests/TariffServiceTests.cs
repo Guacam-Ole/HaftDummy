@@ -1,6 +1,7 @@
 using HaftpflichtDummy.BusinessLogic.Services.WebApiServices;
 using HaftpflichtDummy.DataProviders.Repositories.Database.Interfaces;
 using HaftpflichtDummy.Models;
+using HaftpflichtDummy.Models.InputModels;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using DbModels = HaftpflichtDummy.DataProviders.Models.Database;
@@ -23,7 +24,7 @@ public class TariffServiceTests
         _logger = Substitute.For<ILogger<TariffService>>();
         _dbTariff = Substitute.For<ITariff>();
         _dbInsurer = Substitute.For<IInsurer>();
-        
+
         _payloadService = Substitute.For<PayloadService>(Substitute.For<ILogger<PayloadService>>());
         _tariffService = new TariffService(_logger, _dbTariff, _dbInsurer, _payloadService);
     }
@@ -32,7 +33,7 @@ public class TariffServiceTests
     {
         var insurers =
             JsonConvert.DeserializeObject<List<DbModels.Insurer>>(File.ReadAllText("json/MockInsurers.json"));
-        _dbInsurer.GetAllInsurers().Returns(insurers!);
+        _dbInsurer.SelectAllInsurers().Returns(insurers!);
 
         var tariffs = JsonConvert.DeserializeObject<List<DbModels.Tariff>>(File.ReadAllText("json/MockTariffs.json"));
         _dbTariff.GetAllTariffs().Returns(tariffs!);
@@ -52,7 +53,7 @@ public class TariffServiceTests
     {
         MockDataBase();
 
-        var tariffToAdd = new Tariff
+        var tariffToAdd = new CreateOrUpdateTariffInput
         {
             Name = "Umbrella Deluxe",
             Insurer = 2,
@@ -75,7 +76,11 @@ public class TariffServiceTests
             ]
         );
 
-        _dbTariff.InsertTariff(Arg.Any<DbModels.Tariff>()).Returns(5);
+        _dbTariff.InsertTariff(Arg.Any<DbModels.Tariff>()).Returns(new DbModels.Tariff
+        {
+            Id = 5,
+            Name = tariffToAdd.Name
+        });
 
         var newTariff = await _tariffService.CreateTariff(tariffToAdd);
 
@@ -98,7 +103,7 @@ public class TariffServiceTests
     private async Task CreatingTariffWithMissingFeatureShouldReturnError()
     {
         MockDataBase();
-        var tariffToAdd = new Tariff
+        var tariffToAdd = new CreateOrUpdateTariffInput
         {
             Name = "Umbrella Deluxe",
             Insurer = 2,
@@ -114,9 +119,9 @@ public class TariffServiceTests
                 }
             ]
         );
-        
-       await  _tariffService.CreateTariff(tariffToAdd);
-        
+
+        await _tariffService.CreateTariff(tariffToAdd);
+
         // Check if an error is returned
         _payloadService.ReceivedWithAnyArgs().CreateError<Tariff>(default, default);
         // No Database-Insert should be happening
@@ -126,28 +131,31 @@ public class TariffServiceTests
     }
 
     [Theory]
-    [InlineData(3)]
-    [InlineData(1,8)] // "Bürohaftpflicht"
-    [InlineData(0,9)] // "Büro Plus"
-    [InlineData(2,4,5)] // "Sportboote+Segelboote
-    [InlineData(1,4,5,2)] // "Sportboote+Segelboote+Panama
-    
-    private async Task CalculationsShouldFilterCorrectly(int expectedNumberOfResults, params int[] ids)
+    [InlineData(null, 3)]
+    [InlineData(null, 1, 8)] // "Bürohaftpflicht"
+    [InlineData(null, 0, 9)] // "Büro Plus"
+    [InlineData(null, 2, 4, 5)] // "Sportboote+Segelboote
+    [InlineData(null, 1, 4, 5, 2)] // "Sportboote+Segelboote+Panama
+    private async Task CalculationsShouldFilterCorrectly(int? insurer, int expectedNumberOfResults, params int[] ids)
     {
         MockDataBase();
-        
-        var calculations = (await _tariffService.CalculateAllTariffs(ids.ToList())).ResponseObject!;
-        
+
+        var calculations = (await _tariffService.CalculateAllTariffs(
+            new CalculateTariffsInput
+            {
+                Insurer = insurer, RequiredFeatures = ids.ToList()
+            })).ResponseObject!;
+
         Assert.Equal(expectedNumberOfResults, calculations.Count);
     }
-    
+
     [Fact]
     private async Task CalculationsShouldBeAddedCorrectly()
     {
         MockDataBase();
-        
-        var calculations = (await _tariffService.CalculateAllTariffs([])).ResponseObject!;
-        
+
+        var calculations = (await _tariffService.CalculateAllTariffs(new CalculateTariffsInput{ RequiredFeatures = [] })).ResponseObject!;
+
         Assert.Equal(3, calculations.Count);
 
         // Tariff 1 (Main Tariff)

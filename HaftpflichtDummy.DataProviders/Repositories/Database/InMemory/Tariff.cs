@@ -39,24 +39,24 @@ public class Tariff : ITariff
         return allTariffs.SingleOrDefault(t => t.Id == tariffId);
     }
 
-    public async Task UpdateTariff(Models.Database.Tariff tariff)
+    public async Task<Models.Database.Tariff> UpdateTariff(Models.Database.Tariff tariff)
     {
-        await _fakeDb.UpdateItem(tariff.Id, tariff);
+       return  await _fakeDb.UpdateItem(tariff.Id, tariff);
     }
 
-    public async Task<int> InsertTariff(Models.Database.Tariff tariff)
+    public async Task<Models.Database.Tariff> InsertTariff(Models.Database.Tariff tariff)
     {
         var existingTariffs = await GetAllTariffs();
         if (existingTariffs.Any(q => q.Name == tariff.Name && q.Insurer == tariff.Insurer))
             throw new System.Data.DuplicateNameException("A tariff with this name already exists for that insurer");
         tariff.Id = _fakeDb.GetNextId<Models.Database.Tariff>();
         await _fakeDb.InsertItem(tariff);
-        return tariff.Id;
+        return tariff;
     }
 
-    public async Task AddTariffFeature(TariffFeature tariffFeature)
+    public async Task<TariffFeature> AddTariffFeature(TariffFeature tariffFeature)
     {
-        await _fakeDb.InsertItem(tariffFeature);
+     return   await _fakeDb.InsertItem(tariffFeature);
     }
 
     public async Task RemoveTariffFeature(TariffFeature tariffFeature)
@@ -64,11 +64,11 @@ public class Tariff : ITariff
         await _fakeDb.RemoveItem(tariffFeature);
     }
 
-    public async Task<int> AddFeature(Feature feature)
+    public async Task<Feature> AddFeature(Feature feature)
     {
         feature.Id = _fakeDb.GetNextId<Feature>();
         await _fakeDb.InsertItem(feature);
-        return feature.Id;
+        return feature;
     }
 
     public async Task RemoveFeature(Feature feature)

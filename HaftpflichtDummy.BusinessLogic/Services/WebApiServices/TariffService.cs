@@ -4,8 +4,8 @@ using HaftpflichtDummy.BusinessLogic.Services.WebApiServices.Interfaces;
 using HaftpflichtDummy.DataProviders.Models.Database;
 using HaftpflichtDummy.DataProviders.Repositories.Database.Interfaces;
 using HaftpflichtDummy.Models;
+using HaftpflichtDummy.Models.InputModels;
 using Microsoft.Extensions.Logging;
-using Feature = HaftpflichtDummy.DataProviders.Models.Database.Feature;
 using Tariff = HaftpflichtDummy.Models.Tariff;
 
 namespace HaftpflichtDummy.BusinessLogic.Services.WebApiServices;
@@ -26,42 +26,41 @@ public class TariffService : ITariffService
         _payloadService = payloadService;
     }
 
-    public async Task<Payload<Tariff>> CreateTariff(Tariff tariff)
+    public async Task<Payload<Tariff>> CreateTariff(CreateOrUpdateTariffInput tariffInput)
     {
         var existingFeatures = await _databaseTariff.GetAllFeatures();
         var existingFeatureIds = existingFeatures.Select(feature => feature.Id);
-        var missingFeatures = tariff.Features.Where(
+        var missingFeatures = tariffInput.Features.Where(
             feature => !existingFeatureIds.Contains(feature.Id)
         ).ToList();
         if (missingFeatures.Count != 0)
         {
             _logger.LogError(
                 "Cannot add Tariff '{TariffName}' because the following Feature(s) do not exist: '{FeatureNames}'",
-                tariff.Name, string.Join(',', missingFeatures.Select(feature => feature.Name)));
+                tariffInput.Name, string.Join(',', missingFeatures.Select(feature => feature.Name)));
             return _payloadService.CreateError<Tariff>("Mindestens eines der Features fehlt");
         }
 
-        var tariffId = await _databaseTariff.InsertTariff(new DataProviders.Models.Database.Tariff
+        var dbTariff = await _databaseTariff.InsertTariff(new DataProviders.Models.Database.Tariff
         {
-            Name = tariff.Name,
-            Insurer = tariff.Insurer,
-            ParentTariff = tariff.Parent,
-            Provision = tariff.Provision,
-            ValidFrom = tariff.ValidFrom
+            Name = tariffInput.Name,
+            Insurer = tariffInput.Insurer,
+            ParentTariff = tariffInput.Parent,
+            Provision = tariffInput.Provision,
+            ValidFrom = tariffInput.ValidFrom
         });
 
-        tariff.Id = tariffId;
-        foreach (var feature in tariff.Features)
+        foreach (var feature in tariffInput.Features)
         {
             await _databaseTariff.AddTariffFeature(new TariffFeature
             {
                 FeatureId = feature.Id,
                 IsActive = feature.IsEnabled,
-                TariffId = tariffId
+                TariffId = dbTariff.Id
             });
         }
 
-        return _payloadService.CreateSuccess(tariff);
+        return _payloadService.CreateSuccess(dbTariff.MapToTariff());
     }
 
     public async Task<Payload<Tariff>> GetSingleTariffById(int id)
@@ -78,9 +77,9 @@ public class TariffService : ITariffService
             .ToList());
     }
 
-    public async Task<Payload<Tariff>> UpdateSingleTariff(int tariffId, Tariff tariff)
+    public async Task<Payload<Tariff>> UpdateSingleTariff(int tariffId, CreateOrUpdateTariffInput tariff)
     {
-        await _databaseTariff.UpdateTariff(new DataProviders.Models.Database.Tariff
+        var dbTariff = await _databaseTariff.UpdateTariff(new DataProviders.Models.Database.Tariff
         {
             Id = tariffId,
             Insurer = tariff.Insurer,
@@ -90,10 +89,10 @@ public class TariffService : ITariffService
             ValidFrom = tariff.ValidFrom
         });
 
-        return _payloadService.CreateSuccess(tariff);
+        return _payloadService.CreateSuccess(dbTariff.MapToTariff());
     }
 
-    public async Task<Payload<List<TariffCalculation>>> CalculateAllTariffs(List<int> requiredFeatures)
+    public async Task<Payload<List<TariffCalculation>>> CalculateAllTariffs(CalculateTariffsInput filter)
     {
         // Todo: Annahme: Bausteintarife sind immer genau einem Tarif zugeordnet. Ein Bausteintarif kann nur 
         // Todo: an einem Grundtarif hängen, Bausteintarife können aber keine weiteren untergeordneten
@@ -103,7 +102,7 @@ public class TariffService : ITariffService
         var allDbTariffs = await _databaseTariff.GetAllTariffs();
         var allDbFeatures = await _databaseTariff.GetAllFeatures();
         var allDbTariffFeatures = await _databaseTariff.GetAllTariffFeatures();
-        var allDbInsurers = await _databaseInsurer.GetAllInsurers();
+        var allDbInsurers = await _databaseInsurer.SelectAllInsurers();
 
         var activeTariffs = allDbTariffs.Where(dbt => dbt.ValidFrom <= DateTime.Today)
             .Select(dbt => dbt.MapToTariff(allDbTariffFeatures, allDbFeatures.ToList()))
@@ -116,7 +115,6 @@ public class TariffService : ITariffService
             {
                 InsurerId = q.Insurer,
                 InsurerName = allInsurers.Single(ins => ins.Id == q.Insurer).Name,
-
                 TariffId = q.Id,
                 TariffName = q.Name,
                 BaseProvision = q.Provision,
@@ -144,7 +142,6 @@ public class TariffService : ITariffService
                     Features = parent.Features.Clone()
                 };
 
-
             // Add additional Features:
             foreach (var moduleFeature in moduleTariff.Features.Where(moduleFeature =>
                          moduleCalculation.Features.All(feature => feature.Id != moduleFeature.Id)))
@@ -160,11 +157,19 @@ public class TariffService : ITariffService
 
             calculations.Add(moduleCalculation);
         }
+        
+        // TODO: Erst alle Elemente abzuholen und dann zu filtern ist natürlich sehr inperformant. Bei einem
+        // todo: echten Projekt mit echten DB-Kosten würde ich natürlich vorab filtern
 
-        if (requiredFeatures.Count != 0)
+        if (filter.Insurer != null)
+        {
+            calculations = calculations.Where(calc => calc.InsurerId == filter.Insurer).ToList();
+        }
+        
+        if (filter.RequiredFeatures.Count != 0)
         {
             calculations = calculations.Where(calculation =>
-                    requiredFeatures.TrueForAll(
+                    filter.RequiredFeatures.TrueForAll(
                         feat => calculation.Features.Exists(cf => cf.IsEnabled && cf.Id == feat)))
                 .ToList();
         }

@@ -28,7 +28,7 @@ public interface ITariff
     /// </summary>
     /// <param name="insurerId"></param> 
     /// <returns>Liste der Tarife</returns>
-    Task<IEnumerable<Models.Database.Tariff?>> GetAllTariffsByInsurerId(int insurerId);
+    Task<IEnumerable<Models.Database.Tariff>> GetAllTariffsByInsurerId(int insurerId);
 
     /// <summary>
     /// Liefert einen einzelnen Tarif anhand der id
@@ -43,21 +43,21 @@ public interface ITariff
     /// <param name="tariff">Tarif</param>
     /// <exception cref="KeyNotFoundException">Wird geworfen wein kein Tarif mit dieser Id existiert</exception>
     /// <returns></returns>
-    Task UpdateTariff(Models.Database.Tariff tariff);
+    Task<Models.Database.Tariff> UpdateTariff(Models.Database.Tariff tariff);
 
     /// <summary>
     /// Einen neuen Tarif hinzufügen
     /// </summary>
     /// <param name="tariff">Tarif</param>
     /// <returns>Id from created Tariff</returns>
-    Task<int> InsertTariff(Models.Database.Tariff tariff);
+    Task<Models.Database.Tariff> InsertTariff(Models.Database.Tariff tariff);
 
     /// <summary>
     /// TarifFeature-Verbindung hinzufügen
     /// </summary>
     /// <param name="tariffFeature">TarifFeature</param>
     /// <returns></returns>
-    Task AddTariffFeature(TariffFeature tariffFeature);
+    Task<TariffFeature>  AddTariffFeature(TariffFeature tariffFeature);
 
     /// <summary>
     /// TarifFeature-Verbindung lösen
@@ -71,7 +71,7 @@ public interface ITariff
     /// </summary>
     /// <param name="feature">Feature</param>
     /// <returns>Id des Features</returns>
-    Task<int> AddFeature(Feature feature);
+    Task<Feature> AddFeature(Feature feature);
 
     /// <summary>
     /// Feature entfernen

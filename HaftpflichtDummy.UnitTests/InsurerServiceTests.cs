@@ -1,7 +1,6 @@
 using System.Data;
 using HaftpflichtDummy.BusinessLogic.Services.WebApiServices;
 using HaftpflichtDummy.DataProviders.Repositories.Database.Interfaces;
-using HaftpflichtDummy.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using NSubstitute;
@@ -20,29 +19,25 @@ public class InsurerServiceTests
     {
         _insurerLogger = Substitute.For<ILogger<InsurerService>>();
         _dbInsurer = Substitute.For<IInsurer>();
-        _insurerService = new InsurerService(_insurerLogger, _dbInsurer, Substitute.For<PayloadService>());
+        var payloadService = Substitute.For<PayloadService>(Substitute.For<ILogger<PayloadService>>());
+        _insurerService = new InsurerService(_insurerLogger, _dbInsurer, payloadService);
     }
 
     private void MockDataBase()
     {
-        var insurers = JsonConvert.DeserializeObject<List<DbModels.Insurer>>(File.ReadAllText("json/MockInsurers.json"));
-        _dbInsurer.GetAllInsurers().Returns(insurers!);
+        var insurers =
+            JsonConvert.DeserializeObject<List<DbModels.Insurer>>(File.ReadAllText("json/MockInsurers.json"));
+        _dbInsurer.SelectAllInsurers().Returns(insurers!);
     }
 
 
     [Fact]
     public async Task CreateInsurerCallsDatabase()
     {
-        var insurersToAdd = new List<Insurer>
+        var insurersToAdd = new List<string>
         {
-            new()
-            {
-                Name = "Stans Ship Insurances"
-            },
-            new()
-            {
-                Name = "Umbrella Corp Human Insurances"
-            }
+            "Stans Ship Insurances",
+            "Umbrella Corp Human Insurances"
         };
 
         foreach (var insurer in insurersToAdd)
@@ -50,33 +45,30 @@ public class InsurerServiceTests
             await _insurerService.CreateInsurer(insurer);
         }
 
+        await _dbInsurer.Received()
+            .InsertInsurer(Arg.Is<DbModels.Insurer>(ins => ins.Name.Contains("Stan")));
 
         await _dbInsurer.Received()
-            .AddInsurer(Arg.Is<DbModels.Insurer>(ins => ins.Name.Contains("Stan")));
-
-        await _dbInsurer.Received()
-            .AddInsurer(Arg.Is<DbModels.Insurer>(ins => ins.Name.Contains("Umbrella")));
+            .InsertInsurer(Arg.Is<DbModels.Insurer>(ins => ins.Name.Contains("Umbrella")));
     }
 
     [Fact]
-    public async Task CatchAndLogCreationErrorFromDatabase()
+    public async Task DuplicateInsertShouldReturnError()
     {
-        var insurerToAdd = new Insurer
-        {
-            Name = "Stans Ship Insurances"
-        };
+        var insurerToAdd = "Stans Ship Insurances";
 
         await _insurerService.CreateInsurer(insurerToAdd);
         await _dbInsurer.Received()
-            .AddInsurer(Arg.Is<DbModels.Insurer>(ins => ins.Name.Contains("Stan")));
+            .InsertInsurer(Arg.Is<DbModels.Insurer>(ins => ins.Name.Contains("Stan")));
 
-        _dbInsurer.AddInsurer(Arg.Any<DbModels.Insurer>()).Throws(new DuplicateNameException());
+        _dbInsurer.InsertInsurer(Arg.Any<DbModels.Insurer>()).Throws(new DuplicateNameException());
 
-        // Make sure an error has been logged
-        _insurerLogger.ReceivedWithAnyArgs(1).LogError("");
-
-        // Check if the exception from datalayer is thrown from business logic
-        await Assert.ThrowsAsync<DuplicateNameException>(() => _insurerService.CreateInsurer(insurerToAdd));
+        var result = await _insurerService.CreateInsurer(insurerToAdd);
+        
+        // Make sure Errorfields are filled properly:
+        Assert.False(result.Success);
+        Assert.NotNull(result.ErrorMessage);
+        Assert.Null(result.ResponseObject);
     }
 
     [Fact]

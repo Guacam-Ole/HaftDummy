@@ -15,7 +15,7 @@ public class FakeDb
         Database[table] = contents.Select(itm=>(object)(T)itm).ToList(); //.Select(itm => (object)itm).ToList();
     }
 
-    public async Task InsertItem<T>(T item)
+    public async Task<T> InsertItem<T>(T item)
     {
         if (item == null) throw new ArgumentNullException(nameof(item));
 
@@ -23,9 +23,10 @@ public class FakeDb
         if (!Database.ContainsKey(tableName))
             Database.Add(tableName, []);
         await Task.Run(() =>
-            // TODO: Das ist natürlich nicht wirklich async
+            // Das ist natürlich nicht wirklich async; Soll lediglich den Asynccall bei einer echten DB simulieren
             Database[tableName].Add(item)
         );
+        return item;
     }
 
     public async Task RemoveItem(TariffFeature item)
@@ -61,12 +62,13 @@ public class FakeDb
         return allItems.FirstOrDefault(itm => itm.Id == id);
     }
 
-    public async Task UpdateItem<T>(int id, T item) where T : BaseTable
+    public async Task<T> UpdateItem<T>(int id, T item) where T : BaseTable
     {
         var allItems = (await ListItems<T>()).ToList();
         var existingItem = allItems.FirstOrDefault(itm => itm.Id == id);
         if (existingItem == null) throw new KeyNotFoundException("No item with that id could be found");
         allItems[allItems.IndexOf(existingItem)] = item;
+        return item;
     }
 
     public int GetNextId<T>()

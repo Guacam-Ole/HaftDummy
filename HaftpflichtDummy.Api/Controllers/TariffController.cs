@@ -1,5 +1,6 @@
 using HaftpflichtDummy.BusinessLogic.Services.WebApiServices.Interfaces;
 using HaftpflichtDummy.Models;
+using HaftpflichtDummy.Models.InputModels;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -39,24 +40,24 @@ public class TariffController : Controller
         return NotFound(response); // Je nach error dann natürlich ggf. 500 etc.
     }
 
-    [SwaggerOperation("Fügt eine neue Gesellschaft hinzu")]
+    [SwaggerOperation("Fügt eine Tarif hinzu")]
     [HttpPost]
-    public async Task<IActionResult> Post([FromBody] Tariff tariff)
+    public async Task<IActionResult> Post([FromBody] CreateOrUpdateTariffInput tariff)
     {
         return Ok(await _tariffService.CreateTariff(tariff));
     }
 
-    [SwaggerOperation("Fügt eine neue Gesellschaft hinzu")]
+    [SwaggerOperation("Verändert einen Tarif")]
     [HttpPut]
-    public async Task<IActionResult> Put(int id, [FromBody] Tariff tariff)
+    public async Task<IActionResult> Put(int id, [FromBody] CreateOrUpdateTariffInput tariff)
     {
         return Ok(await _tariffService.UpdateSingleTariff(id, tariff));
     }
 
-    [SwaggerOperation("Fügt eine neue Gesellschaft hinzu")]
+    [SwaggerOperation("Berechnet Tarife")]
     [HttpPost("berechnen")]
-    public async Task<IActionResult> Calculate([FromBody] List<int> requiredFeatures)
+    public async Task<IActionResult> Calculate([FromBody] CalculateTariffsInput filter)
     {
-        return Ok(await _tariffService.CalculateAllTariffs(requiredFeatures));
+        return Ok(await _tariffService.CalculateAllTariffs(filter));
     }
 }

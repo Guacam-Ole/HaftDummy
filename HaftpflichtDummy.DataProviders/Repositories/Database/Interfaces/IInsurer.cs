@@ -8,18 +8,18 @@ public interface IInsurer
     /// Liefert alle verfügbaren Gesellschaften
     /// </summary>
     /// <returns>Liste der Gesellschaften</returns>
-    Task<IEnumerable<Models.Database.Insurer>> GetAllInsurers();
+    Task<IEnumerable<Models.Database.Insurer>> SelectAllInsurers();
 
     /// <summary>
     /// Liefert eine einzelne Gesellschaft anhand des Namens
     /// </summary>
     /// <returns>Gesellschaft</returns>
-    Task<Models.Database.Insurer?> GetInsurerByName(string insurer);
+    Task<Models.Database.Insurer?> SelectInsurerByName(string insurer);
 
     /// <summary>
     /// Eine Gesellschaft zur Datenbank hinzufügen
     /// </summary>
     /// <param name="insurer">Gesellschaft</param>
     /// <exception cref="System.Data.DuplicateNameException">Wird geworfen wenn eine Gesellschaft mit dem Namen bereits existiert</exception>
-    Task AddInsurer(Models.Database.Insurer insurer);
+    Task<int> InsertInsurer(Models.Database.Insurer insurer);
 }
