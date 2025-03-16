@@ -128,8 +128,22 @@ public class TariffServiceTests
         _logger.ReceivedWithAnyArgs().LogError("");
     }
 
+    [Theory]
+    [InlineData(3)]
+    [InlineData(1,8)] // "Bürohaftpflicht"
+    [InlineData(0,9)] // "Büro Plus"
+    [InlineData(2,4,5)] // "Sportboote+Segelboote
+    [InlineData(1,4,5,2)] // "Sportboote+Segelboote+Panama
+    
+    private async Task CalculationsShouldFilterCorrectly(int expectedNumberOfResults, params int[] ids)
+    {
+        MockDataBase();
+        var calculations = (await _tariffService.CalculateAllTariffs(ids.ToList())).ResponseObject!;
+        Assert.Equal(expectedNumberOfResults, calculations.Count);
+    }
+    
     [Fact]
-    private async Task CalculationsShouldBeCorrect()
+    private async Task CalculationsShouldBeAddedCorrectly()
     {
         MockDataBase();
         var calculations = (await _tariffService.CalculateAllTariffs([])).ResponseObject!;
