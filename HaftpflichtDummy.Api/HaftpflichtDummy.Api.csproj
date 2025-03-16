@@ -10,11 +10,44 @@
 
     <ItemGroup>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
+        <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.3.1"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\HaftpflichtDummy.BusinessLogic\HaftpflichtDummy.BusinessLogic.csproj" />
-      <ProjectReference Include="..\HaftpflichtDummy.DataProviders\HaftpflichtDummy.DataProviders.csproj" />
+        <ProjectReference Include="..\HaftpflichtDummy.BusinessLogic\HaftpflichtDummy.BusinessLogic.csproj"/>
+        <ProjectReference Include="..\HaftpflichtDummy.DataProviders\HaftpflichtDummy.DataProviders.csproj"/>
     </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="..\HaftpflichtDummy.UnitTests\json\MockFeatures.json">
+            <Link>json\MockFeatures.json</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+        </Content>
+        <Content Include="..\HaftpflichtDummy.UnitTests\json\MockInsurers.json">
+            <Link>json\MockInsurers.json</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="..\HaftpflichtDummy.UnitTests\json\MockTariffFeatures.json">
+            <Link>json\MockTariffFeatures.json</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            
+        </Content>
+        <Content Include="..\HaftpflichtDummy.UnitTests\json\MockTariffs.json">
+            <Link>json\MockTariffs.json</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="Newtonsoft.Json">
+            <HintPath>..\..\..\..\..\..\..\home\guacamole\.nuget\packages\newtonsoft.json\13.0.1\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Update="..\HaftpflichtDummy.UnitTests\json\" />
+    </ItemGroup>
+
 
 </Project>

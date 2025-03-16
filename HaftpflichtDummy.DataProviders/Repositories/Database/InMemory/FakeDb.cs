@@ -1,4 +1,5 @@
 using System.Data.Common;
+using System.Security.AccessControl;
 using HaftpflichtDummy.DataProviders.Models.Database;
 
 namespace HaftpflichtDummy.DataProviders.Repositories.Database;
@@ -7,6 +8,12 @@ namespace HaftpflichtDummy.DataProviders.Repositories.Database;
 public class FakeDb
 {
     private static readonly Dictionary<string, List<object>> Database = new();
+
+    // todo: Nur für Dummydaten in diesem Test 
+    public void BulkReplace<T>(string table, List<T> contents)
+    {
+        Database[table] = contents.Select(itm=>(object)(T)itm).ToList(); //.Select(itm => (object)itm).ToList();
+    }
 
     public async Task InsertItem<T>(T item)
     {

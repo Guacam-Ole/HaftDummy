@@ -98,7 +98,6 @@ public class TariffServiceTests
     private async Task CreatingTariffWithMissingFeatureShouldReturnError()
     {
         MockDataBase();
-
         var tariffToAdd = new Tariff
         {
             Name = "Umbrella Deluxe",
@@ -115,7 +114,6 @@ public class TariffServiceTests
                 }
             ]
         );
-
         
        await  _tariffService.CreateTariff(tariffToAdd);
         
@@ -123,7 +121,6 @@ public class TariffServiceTests
         _payloadService.ReceivedWithAnyArgs().CreateError<Tariff>(default, default);
         // No Database-Insert should be happening
         await _dbTariff.DidNotReceive().InsertTariff(Arg.Any<DbModels.Tariff>());
-        
         // Make sure an error has been logged
         _logger.ReceivedWithAnyArgs().LogError("");
     }
@@ -138,7 +135,9 @@ public class TariffServiceTests
     private async Task CalculationsShouldFilterCorrectly(int expectedNumberOfResults, params int[] ids)
     {
         MockDataBase();
+        
         var calculations = (await _tariffService.CalculateAllTariffs(ids.ToList())).ResponseObject!;
+        
         Assert.Equal(expectedNumberOfResults, calculations.Count);
     }
     
@@ -146,7 +145,9 @@ public class TariffServiceTests
     private async Task CalculationsShouldBeAddedCorrectly()
     {
         MockDataBase();
+        
         var calculations = (await _tariffService.CalculateAllTariffs([])).ResponseObject!;
+        
         Assert.Equal(3, calculations.Count);
 
         // Tariff 1 (Main Tariff)

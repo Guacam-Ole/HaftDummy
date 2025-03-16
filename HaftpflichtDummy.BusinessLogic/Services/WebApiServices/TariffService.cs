@@ -72,9 +72,10 @@ public class TariffService : ITariffService
             : _payloadService.CreateSuccess(dbTariff.MapToTariff());
     }
 
-    public Task<Payload<List<Tariff>>> GetAllTariffs()
+    public async Task<Payload<List<Tariff>>> GetAllTariffs()
     {
-        throw new NotImplementedException();
+        return _payloadService.CreateSuccess((await _databaseTariff.GetAllTariffs()).Select(tar => tar.MapToTariff())
+            .ToList());
     }
 
     public async Task<Payload<Tariff>> UpdateSingleTariff(int tariffId, Tariff tariff)
