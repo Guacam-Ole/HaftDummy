@@ -1,4 +1,3 @@
-using System.Reflection.Metadata.Ecma335;
 using HaftpflichtDummy.BusinessLogic.Services.WebApiServices.Interfaces;
 using HaftpflichtDummy.Models;
 using Microsoft.AspNetCore.Mvc;

@@ -132,7 +132,7 @@ public class TariffServiceTests
     private async Task CalculationsShouldBeCorrect()
     {
         MockDataBase();
-        var calculations = (await _tariffService.CalculateAllTariffs()).ResponseObject!;
+        var calculations = (await _tariffService.CalculateAllTariffs([])).ResponseObject!;
         Assert.Equal(3, calculations.Count);
 
         // Tariff 1 (Main Tariff)

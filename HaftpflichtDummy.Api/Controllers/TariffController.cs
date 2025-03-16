@@ -44,6 +44,6 @@ public class TariffController : Controller
     [HttpPost("berechnen")]
     public async Task<IActionResult> Calculate([FromBody] List<int> requiredFeatures)
     {
-        return Ok(await _tariffService.CalculateAllTariffs());
+        return Ok(await _tariffService.CalculateAllTariffs(requiredFeatures));
     }
 }

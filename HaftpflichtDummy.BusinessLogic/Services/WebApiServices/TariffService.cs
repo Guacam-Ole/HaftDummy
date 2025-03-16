@@ -5,6 +5,7 @@ using HaftpflichtDummy.DataProviders.Models.Database;
 using HaftpflichtDummy.DataProviders.Repositories.Database.Interfaces;
 using HaftpflichtDummy.Models;
 using Microsoft.Extensions.Logging;
+using Feature = HaftpflichtDummy.DataProviders.Models.Database.Feature;
 using Tariff = HaftpflichtDummy.Models.Tariff;
 
 namespace HaftpflichtDummy.BusinessLogic.Services.WebApiServices;
@@ -66,8 +67,8 @@ public class TariffService : ITariffService
     public async Task<Payload<Tariff>> GetSingleTariffById(int id)
     {
         var dbTariff = await _databaseTariff.GetTariffById(id);
-        return dbTariff == null 
-            ? _payloadService.CreateError<Tariff>("Tarif nicht vorhanden") 
+        return dbTariff == null
+            ? _payloadService.CreateError<Tariff>("Tarif nicht vorhanden")
             : _payloadService.CreateSuccess(dbTariff.MapToTariff());
     }
 
@@ -91,7 +92,7 @@ public class TariffService : ITariffService
         return _payloadService.CreateSuccess(tariff);
     }
 
-    public async Task<Payload<List<TariffCalculation>>> CalculateAllTariffs()
+    public async Task<Payload<List<TariffCalculation>>> CalculateAllTariffs(List<int> requiredFeatures)
     {
         // Todo: Annahme: Bausteintarife sind immer genau einem Tarif zugeordnet. Ein Bausteintarif kann nur 
         // Todo: an einem Grundtarif hängen, Bausteintarife können aber keine weiteren untergeordneten
@@ -101,12 +102,12 @@ public class TariffService : ITariffService
         var allDbTariffs = await _databaseTariff.GetAllTariffs();
         var allDbFeatures = await _databaseTariff.GetAllFeatures();
         var allDbTariffFeatures = await _databaseTariff.GetAllTariffFeatures();
-        var allDbInsureres = await _databaseInsurer.GetAllInsurers();
+        var allDbInsurers = await _databaseInsurer.GetAllInsurers();
 
         var activeTariffs = allDbTariffs.Where(dbt => dbt.ValidFrom <= DateTime.Today)
             .Select(dbt => dbt.MapToTariff(allDbTariffFeatures, allDbFeatures.ToList()))
             .ToList();
-        var allInsurers = allDbInsureres.Select(dbi => dbi.MapToInsurer());
+        var allInsurers = allDbInsurers.Select(dbi => dbi.MapToInsurer());
 
         // Adding base Tariffs without Modules:
         calculations.AddRange(activeTariffs.Where(t => t.Parent == null).Select(q =>
@@ -157,6 +158,14 @@ public class TariffService : ITariffService
             }
 
             calculations.Add(moduleCalculation);
+        }
+
+        if (requiredFeatures.Count != 0)
+        {
+            calculations = calculations.Where(calculation =>
+                    requiredFeatures.TrueForAll(
+                        feat => calculation.Features.Exists(cf => cf.IsEnabled && cf.Id == feat)))
+                .ToList();
         }
 
         return _payloadService.CreateSuccess(calculations);
