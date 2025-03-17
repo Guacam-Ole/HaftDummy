@@ -13,7 +13,7 @@ public static class TariffMappings
         {
             Name = tariff.Name,
             Id = tariff.Id,
-            Insurer = tariff.Insurer,
+            Insurer = tariff.InsurerId,
             Parent = tariff.ParentTariff,
             Provision = tariff.Provision,
             ValidFrom = tariff.ValidFrom
@@ -24,7 +24,7 @@ public static class TariffMappings
     {
         var retTariff = MapToTariff(tariff);
         retTariff.Features.AddRange(
-            tariffFeatures.Where(feature=>feature.TariffId==tariff.Id).Select(tariffFeature =>
+            tariffFeatures.Where(feature => feature.TariffId == tariff.Id).Select(tariffFeature =>
                 features.First(f => f.Id == tariffFeature.FeatureId)
                     .MapToFeature(tariffFeature.IsActive))
         );
@@ -39,6 +39,6 @@ public static class TariffMappings
             {
                 Id = feature.Id,
                 Name = feature.Name,
-                IsEnabled = isEnabled
+                IsActive = isEnabled
             };
 }

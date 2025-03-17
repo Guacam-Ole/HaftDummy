@@ -1,6 +1,8 @@
+namespace HaftpflichtDummy.UnitTests;
+
 using System.Data;
-using HaftpflichtDummy.BusinessLogic.Services.WebApiServices;
-using HaftpflichtDummy.DataProviders.Repositories.Database.Interfaces;
+using BusinessLogic.Services.WebApiServices;
+using DataProviders.Repositories.Database.Interfaces;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using NSubstitute;
@@ -11,16 +13,15 @@ using Assert = Xunit.Assert;
 
 public class InsurerServiceTests
 {
-    private readonly ILogger<InsurerService> _insurerLogger;
     private readonly IInsurer _dbInsurer;
     private readonly InsurerService _insurerService;
 
     public InsurerServiceTests()
     {
-        _insurerLogger = Substitute.For<ILogger<InsurerService>>();
+        var insurerLogger = Substitute.For<ILogger<InsurerService>>();
         _dbInsurer = Substitute.For<IInsurer>();
         var payloadService = Substitute.For<PayloadService>(Substitute.For<ILogger<PayloadService>>());
-        _insurerService = new InsurerService(_insurerLogger, _dbInsurer, payloadService);
+        _insurerService = new InsurerService(insurerLogger, _dbInsurer, payloadService);
     }
 
     private void MockDataBase()
@@ -64,7 +65,7 @@ public class InsurerServiceTests
         _dbInsurer.InsertInsurer(Arg.Any<DbModels.Insurer>()).Throws(new DuplicateNameException());
 
         var result = await _insurerService.CreateInsurer(insurerToAdd);
-        
+
         // Make sure Errorfields are filled properly:
         Assert.False(result.Success);
         Assert.NotNull(result.ErrorMessage);

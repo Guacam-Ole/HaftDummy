@@ -9,10 +9,10 @@ public class CreateOrUpdateTariffInput
     public required string Name { get; set; }
     
     [SwaggerSchema("Id des Versicherers")] 
-    public int Insurer { get; set; }
+    public int InsurerId { get; set; }
 
     [SwaggerSchema("Zugehöriger Basistarif (bei Modultarif)")]
-    public int? Parent { get; set; }
+    public int? ParentId { get; set; }
 
     [SwaggerSchema("Prämie")] 
     
@@ -27,5 +27,5 @@ public class CreateOrUpdateTariffInput
 public class TariffInputFeature
 {
     public int Id { get; set; }
-    public bool IsEnabled { get; set; }
+    public bool IsActive { get; set; }
 }

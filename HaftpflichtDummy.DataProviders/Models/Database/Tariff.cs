@@ -2,7 +2,7 @@ namespace HaftpflichtDummy.DataProviders.Models.Database;
 
 public class Tariff:BaseTable
 {
-    public int Insurer { get; set; }
+    public int InsurerId { get; set; }
     
     /// <summary>
     /// Basistarif des Bausteintarifs, Null wenn Basistarif

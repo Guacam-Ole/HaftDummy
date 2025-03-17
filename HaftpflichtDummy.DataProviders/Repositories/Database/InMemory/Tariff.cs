@@ -33,7 +33,7 @@ public class Tariff : ITariff
     public async Task<IEnumerable<Models.Database.Tariff?>> GetAllTariffsByInsurerId(int insurerId)
     {
         var allTariffs = await GetAllTariffs();
-        return allTariffs.Where(t => t.Insurer == insurerId);
+        return allTariffs.Where(t => t.InsurerId == insurerId);
     }
 
     public async Task<Models.Database.Tariff?> GetTariffById(int tariffId)
@@ -50,10 +50,10 @@ public class Tariff : ITariff
     public async Task<Models.Database.Tariff> InsertTariff(Models.Database.Tariff tariff)
     {
         var existingTariffs = await GetAllTariffs();
-        if (existingTariffs.Any(q => q.Name == tariff.Name && q.Insurer == tariff.Insurer))
+        if (existingTariffs.Any(q => q.Name == tariff.Name && q.InsurerId == tariff.InsurerId))
         {
             _logger.LogError("Tried to insert a duplicate tariff with Name '{TariffName}' to '{InsurerId}'",
-                tariff.Name, tariff.Insurer);
+                tariff.Name, tariff.InsurerId);
             throw new System.Data.DuplicateNameException("A tariff with this name already exists for that insurer");
         }
 

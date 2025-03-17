@@ -1,15 +1,16 @@
-using HaftpflichtDummy.BusinessLogic.Services.WebApiServices;
-using HaftpflichtDummy.DataProviders.Repositories.Database.Interfaces;
-using HaftpflichtDummy.Models;
-using HaftpflichtDummy.Models.InputModels;
+namespace HaftpflichtDummy.UnitTests;
+
+using BusinessLogic.Services.WebApiServices;
+using DataProviders.Repositories.Database.Interfaces;
+using Models;
+using Models.InputModels;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using DbModels = HaftpflichtDummy.DataProviders.Models.Database;
-
-namespace HaftpflichtDummy.UnitTests;
-
 using Xunit;
 using NSubstitute;
+
+
 
 public class TariffServiceTests
 {
@@ -56,7 +57,7 @@ public class TariffServiceTests
         var tariffToAdd = new CreateOrUpdateTariffInput
         {
             Name = "Umbrella Deluxe",
-            Insurer = 2,
+            InsurerId = 2,
             Provision = 1200,
             ValidFrom = new DateTime(1901, 01, 01)
         };
@@ -64,12 +65,12 @@ public class TariffServiceTests
                 new TariffInputFeature
                 {
                     Id = 9,
-                    IsEnabled = true
+                    IsActive = true
                 },
                 new TariffInputFeature
                 {
                     Id = 8,
-                    IsEnabled = true,
+                    IsActive = true,
                 }
             ]
         );
@@ -85,7 +86,7 @@ public class TariffServiceTests
         // Make sure the insert-Tariff DB-Call is run
         await _dbTariff.Received()
             .InsertTariff(Arg.Is<DbModels.Tariff>(tariff =>
-                tariff.Name == tariffToAdd.Name && tariff.Insurer == tariffToAdd.Insurer &&
+                tariff.Name == tariffToAdd.Name && tariff.InsurerId == tariffToAdd.InsurerId &&
                 tariff.Provision == tariffToAdd.Provision && tariff.ValidFrom == tariffToAdd.ValidFrom));
 
         // make sure two Tariff-Connections are created
@@ -104,7 +105,7 @@ public class TariffServiceTests
         var tariffToAdd = new CreateOrUpdateTariffInput
         {
             Name = "Umbrella Deluxe",
-            Insurer = 2,
+            InsurerId = 2,
             Provision = 1200,
             ValidFrom = new DateTime(1901, 01, 01)
         };
@@ -112,7 +113,7 @@ public class TariffServiceTests
                 new TariffInputFeature
                 {
                     Id = 99,
-                    IsEnabled = true
+                    IsActive = true
                 }
             ]
         );
@@ -140,7 +141,7 @@ public class TariffServiceTests
         var calculations = (await _tariffService.CalculateAllTariffs(
             new CalculateTariffsInput
             {
-                Insurer = insurer, RequiredFeatures = ids.ToList()
+                InsurerId = insurer, RequiredFeatureIds = ids.ToList()
             })).ResponseObject!;
 
         Assert.Equal(expectedNumberOfResults, calculations.Count);
@@ -152,7 +153,7 @@ public class TariffServiceTests
         MockDataBase();
 
         var calculations =
-            (await _tariffService.CalculateAllTariffs(new CalculateTariffsInput { RequiredFeatures = [] }))
+            (await _tariffService.CalculateAllTariffs(new CalculateTariffsInput { RequiredFeatureIds = [] }))
             .ResponseObject!;
 
         Assert.Equal(3, calculations.Count);
@@ -160,16 +161,16 @@ public class TariffServiceTests
         // Tariff 1 (Main Tariff)
         Assert.NotNull(calculations.FirstOrDefault(c =>
             c is { TariffId: 1, TariffModuleId: null, TotalProvision: 100 } &&
-            c.Features.Count(q => q.IsEnabled) == 2));
+            c.Features.Count(q => q.IsActive) == 2));
 
         // Tariff 2 (Module from Base Tariff 1).
         Assert.NotNull(calculations.FirstOrDefault(c =>
             c is { TariffId: 1, TariffModuleId: 2, BaseProvision: 100, ModuleProvision: 1000, TotalProvision: 1100 } &&
-            c.Features.Count(q => q.IsEnabled) == 5));
+            c.Features.Count(q => q.IsActive) == 5));
 
         // Tariff 4 (Main Tariff):
         Assert.NotNull(calculations.FirstOrDefault(c =>
             c is { TariffId: 4, TariffModuleId: null, TotalProvision: 450 } &&
-            c.Features.Count(q => q.IsEnabled) == 1));
+            c.Features.Count(q => q.IsActive) == 1));
     }
 }

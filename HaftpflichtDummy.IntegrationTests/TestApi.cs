@@ -47,7 +47,7 @@ public class TestApi
         var request = new HttpRequestMessage(new HttpMethod("POST"), "/api/tarife");
         request.Content = new StringContent(JsonConvert.SerializeObject(new CreateOrUpdateTariffInput
         {
-            Insurer = 1,
+            InsurerId = 1,
             Name = "Neuer Tarif",
             Provision = (decimal)47.11,
             ValidFrom = DateTime.Now.AddDays(-1)
@@ -70,8 +70,8 @@ public class TestApi
 
         await AddTariff(new CreateOrUpdateTariffInput
         {
-            Features = { new TariffInputFeature { Id = 1, IsEnabled = false } },
-            Insurer = 1,
+            Features = { new TariffInputFeature { Id = 1, IsActive = false } },
+            InsurerId = 1,
             Name = "BasisTariff erste Gesellschaft",
             Provision = 22.4m,
             ValidFrom = DateTime.Today.AddDays(-1)
@@ -79,18 +79,18 @@ public class TestApi
 
         await AddTariff(new CreateOrUpdateTariffInput
         {
-            Features = { new TariffInputFeature { Id = 1, IsEnabled = true } },
-            Insurer = 1,
+            Features = { new TariffInputFeature { Id = 1, IsActive = true } },
+            InsurerId = 1,
             Name = "Modultarif vom BasisTarif der ersten Gesellschaft",
             Provision = 12.0m,
             ValidFrom = DateTime.Today.AddDays(-1),
-            Parent = 1
+            ParentId = 1
         }); // 2
         await AddInsurer("Gesellschaft 2");
         await AddTariff(new CreateOrUpdateTariffInput
         {
-            Features = { new TariffInputFeature { Id = 1, IsEnabled = true } },
-            Insurer = 2,
+            Features = { new TariffInputFeature { Id = 1, IsActive = true } },
+            InsurerId = 2,
             Name = "BasisTariff zweite Gesellschaft",
             Provision = 120.4m,
             ValidFrom = DateTime.Today.AddDays(-1)
@@ -98,12 +98,12 @@ public class TestApi
 
         await AddTariff(new CreateOrUpdateTariffInput
         {
-            Features = { new TariffInputFeature { Id = 2, IsEnabled = true } },
-            Insurer = 2,
+            Features = { new TariffInputFeature { Id = 2, IsActive = true } },
+            InsurerId = 2,
             Name = "Modultarif vom BasisTarif der zweiten Gesellschaft",
             Provision = 0.10m,
             ValidFrom = DateTime.Today.AddDays(-1),
-            Parent = 3
+            ParentId = 3
         });//4
 
         var firstCalculation = await GetCalculations(1); // Sollte den ersten Bausteintarif und beide Tarife des zweiten Anbieters zurückliefern
@@ -144,7 +144,7 @@ public class TestApi
         var request = new HttpRequestMessage(new HttpMethod("POST"), "/api/tarife/berechnen");
         request.Content = new StringContent(JsonConvert.SerializeObject(new CalculateTariffsInput
         {
-            RequiredFeatures = [requiredFeature]
+            RequiredFeatureIds = [requiredFeature]
         }));
         request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
         var response=await _client.SendAsync(request);

@@ -49,8 +49,8 @@ public class TariffService : ITariffService
             var dbTariff = await _databaseTariff.InsertTariff(new DataProviders.Models.Database.Tariff
             {
                 Name = tariffInput.Name,
-                Insurer = tariffInput.Insurer,
-                ParentTariff = tariffInput.Parent,
+                InsurerId = tariffInput.InsurerId,
+                ParentTariff = tariffInput.ParentId,
                 Provision = tariffInput.Provision,
                 ValidFrom = tariffInput.ValidFrom
             });
@@ -60,7 +60,7 @@ public class TariffService : ITariffService
                 await _databaseTariff.AddTariffFeature(new DbModels.TariffFeature
                 {
                     FeatureId = feature.Id,
-                    IsActive = feature.IsEnabled,
+                    IsActive = feature.IsActive,
                     TariffId = dbTariff.Id
                 });
             }
@@ -114,9 +114,9 @@ public class TariffService : ITariffService
             var dbTariff = await _databaseTariff.UpdateTariff(new DataProviders.Models.Database.Tariff
             {
                 Id = tariffId,
-                Insurer = tariff.Insurer,
+                InsurerId = tariff.InsurerId,
                 Name = tariff.Name,
-                ParentTariff = tariff.Parent,
+                ParentTariff = tariff.ParentId,
                 Provision = tariff.Provision,
                 ValidFrom = tariff.ValidFrom
             });
@@ -182,17 +182,17 @@ public class TariffService : ITariffService
             // todo: echten Projekt mit echten DB-Kosten würde ich natürlich vorab filtern
 
             // filter by insurer if requested:
-            if (filter.Insurer != null)
+            if (filter.InsurerId != null)
             {
-                calculations = calculations.Where(calc => calc.InsurerId == filter.Insurer).ToList();
+                calculations = calculations.Where(calc => calc.InsurerId == filter.InsurerId).ToList();
             }
 
             // filter by feature if requested:
-            if (filter.RequiredFeatures.Count != 0)
+            if (filter.RequiredFeatureIds.Count != 0)
             {
                 calculations = calculations.Where(calculation =>
-                        filter.RequiredFeatures.TrueForAll(
-                            feat => calculation.Features.Exists(cf => cf.IsEnabled && cf.Id == feat)))
+                        filter.RequiredFeatureIds.TrueForAll(
+                            feat => calculation.Features.Exists(cf => cf.IsActive && cf.Id == feat)))
                     .ToList();
             }
 
@@ -240,7 +240,7 @@ public class TariffService : ITariffService
             // Enable features that have been disabled in parent but are enabled in module:
             foreach (var activeModuleFeature in tariff.ActiveFeatures)
             {
-                calculation.Features.First(feature => feature.Id == activeModuleFeature.Id).IsEnabled = true;
+                calculation.Features.First(feature => feature.Id == activeModuleFeature.Id).IsActive = true;
             }
         }
 

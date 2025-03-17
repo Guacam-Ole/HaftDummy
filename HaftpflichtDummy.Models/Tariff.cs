@@ -14,6 +14,6 @@ public class Tariff
 
     public List<Feature> ActiveFeatures
     {
-        get { return Features.Where(f => f.IsEnabled).ToList(); }
+        get { return Features.Where(f => f.IsActive).ToList(); }
     }
 }
