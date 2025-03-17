@@ -20,16 +20,22 @@ public class InsurerController : Controller
     }
 
     [SwaggerOperation("Liefert alle verfügbaren Gesellschaften")]
+    [SwaggerResponse(200, "OK")]
+    [SwaggerResponse(500, "Server-Fehler")]
     [HttpGet]
     public async Task<IActionResult> Get()
     {
-        return Ok(await _insurerService.GetAll());
+        var result = await _insurerService.GetAllInsurers();
+        return result.Success ? Ok(result) : Problem(result.ErrorMessage);
     }
 
     [SwaggerOperation("Fügt eine neue Gesellschaft hinzu")]
+    [SwaggerResponse(200, "OK")]
+    [SwaggerResponse(500, "Server-Fehler")]
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] CreateOrUpdateInsurerInput orUpdateInsurer)
     {
-        return Ok(await _insurerService.CreateInsurer(orUpdateInsurer.Name));
+        var result = await _insurerService.CreateInsurer(orUpdateInsurer.Name);
+        return result.Success ? Ok(result) : Problem(result.ErrorMessage);
     }
 }

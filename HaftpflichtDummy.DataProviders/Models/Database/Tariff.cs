@@ -4,7 +4,9 @@ public class Tariff:BaseTable
 {
     public int Insurer { get; set; }
     
-    // Todo: Null bei Grundtarif, bei Bausteintarif zugehöriger Grundtarif
+    /// <summary>
+    /// Basistarif des Bausteintarifs, Null wenn Basistarif
+    /// </summary>
     public int? ParentTariff { get; set; }
 
     public DateTime ValidFrom { get; set; }

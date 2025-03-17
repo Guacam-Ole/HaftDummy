@@ -15,7 +15,7 @@ public class PayloadService
 
     public Payload<T> CreateSuccess<T>(T responseObject, [CallerMemberName] string callerMemberName = "")
     {
-        _logger.LogDebug("'{method}' responds success", callerMemberName);
+        _logger.LogDebug("'{method}' returned success", callerMemberName);
         return new Payload<T>
         {
             Success = true,

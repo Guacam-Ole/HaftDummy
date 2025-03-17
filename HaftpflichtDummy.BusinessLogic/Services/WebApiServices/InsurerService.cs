@@ -37,9 +37,17 @@ public class InsurerService : IInsurerService
         }
     }
 
-    public async Task<Payload<List<Insurer>>> GetAll()
+    public async Task<Payload<List<Insurer>>> GetAllInsurers()
     {
-        var insurers = (await _databaseInsurer.SelectAllInsurers()).Select(q => q.MapToInsurer());
-        return _payloadService.CreateSuccess(insurers.ToList());
+        try
+        {
+            var insurers = (await _databaseInsurer.SelectAllInsurers()).Select(q => q.MapToInsurer());
+            return _payloadService.CreateSuccess(insurers.ToList());
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get insurers from Database");
+            return _payloadService.CreateError<List<Insurer>>("Database Error");
+        }
     }
 }

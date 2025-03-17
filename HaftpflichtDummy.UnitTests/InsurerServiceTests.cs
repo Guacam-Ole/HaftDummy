@@ -75,7 +75,7 @@ public class InsurerServiceTests
     public async Task InsurersGetCorrectlyMappedAndReturned()
     {
         MockDataBase();
-        var allInsurers = (await _insurerService.GetAll()).ResponseObject!.ToList();
+        var allInsurers = (await _insurerService.GetAllInsurers()).ResponseObject!.ToList();
 
         var firstMatch = allInsurers.FirstOrDefault(q => q.Name.Contains("Stan") && q.Id == 1);
         var secondMatch = allInsurers.FirstOrDefault(q => q.Name.Contains("Umbrella") && q.Id == 2);

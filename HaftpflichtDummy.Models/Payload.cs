@@ -8,5 +8,6 @@ public class Payload<T>
     public T? ResponseObject { get; set; }
 
     // todo: In einem realworld-Beispiel würde anstatt eines strings ein FehlerObjekt mit Details stehen
+    // todo: also z.B. ErrorEnum+ErrorMessage+HumanReadableErrorMessage+AffectedField+Exception+HttpStatusCode etc.
     public string? ErrorMessage { get; set; }
 }

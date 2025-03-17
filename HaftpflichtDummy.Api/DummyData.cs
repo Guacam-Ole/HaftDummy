@@ -11,15 +11,15 @@ public static class DummyData
 
         fakeDb.BulkReplace("Feature",
             JsonConvert.DeserializeObject<List<HaftpflichtDummy.DataProviders.Models.Database.Feature>>(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,
-                "json/MockFeatures.json"))));
+                "json/MockFeatures.json")))!);
         fakeDb.BulkReplace("Insurer",
             JsonConvert.DeserializeObject<List<HaftpflichtDummy.DataProviders.Models.Database.Insurer>>(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,
-                "json/MockInsurers.json"))));
+                "json/MockInsurers.json")))!);
         fakeDb.BulkReplace("Tariff",
             JsonConvert.DeserializeObject<List<HaftpflichtDummy.DataProviders.Models.Database.Tariff>>(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,
-                "json/MockTariffs.json"))));
+                "json/MockTariffs.json")))!);
         fakeDb.BulkReplace("TariffFeature",
             JsonConvert.DeserializeObject<List<HaftpflichtDummy.DataProviders.Models.Database.TariffFeature>>(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,
-                "json/MockTariffFeatures.json"))));
+                "json/MockTariffFeatures.json")))!);
     }
 }

@@ -1,28 +1,40 @@
-using System.Data.Common;
-using System.Security.AccessControl;
 using HaftpflichtDummy.DataProviders.Models.Database;
+using Microsoft.Extensions.Logging;
 
 namespace HaftpflichtDummy.DataProviders.Repositories.Database;
 
 // TODO: Das sollte nicht als Teil des Projekts angesehen werden, sondern die Simulation einer (sehr inperformanten) Datenbank
 public class FakeDb
 {
+    private readonly ILogger<FakeDb> _logger;
+
     private static readonly Dictionary<string, List<object>> Database = new();
+
+    public FakeDb(ILogger<FakeDb> logger)
+    {
+        _logger = logger;
+    }
 
     // todo: Nur für Dummydaten in diesem Test 
     public void BulkReplace<T>(string table, List<T> contents)
     {
-        Database[table] = contents.Select(itm=>(object)(T)itm).ToList(); //.Select(itm => (object)itm).ToList();
+        _logger.LogDebug("Database has been filled with data for '{tableName}'", table);
+        Database[table] = contents.Select(itm => (object)(T)itm).ToList(); //.Select(itm => (object)itm).ToList();
     }
 
     public void Empty()
     {
+        _logger.LogDebug("Database has been emptied");
         Database.Clear();
     }
 
     public async Task<T> InsertItem<T>(T item)
     {
-        if (item == null) throw new ArgumentNullException(nameof(item));
+        if (item == null)
+        {
+            _logger.LogDebug("Tried to insert an empty item to '{tableName}' failed", typeof(T).Name);
+            throw new ArgumentNullException(nameof(item));
+        }
 
         var tableName = typeof(T).Name;
         if (!Database.ContainsKey(tableName))
@@ -31,6 +43,8 @@ public class FakeDb
             // Das ist natürlich nicht wirklich async; Soll lediglich den Asynccall bei einer echten DB simulieren
             Database[tableName].Add(item)
         );
+
+        _logger.LogDebug("Inserted new item");
         return item;
     }
 
@@ -40,24 +54,38 @@ public class FakeDb
         var elements = value.Select(tf => (TariffFeature)tf).ToList();
         var existingItem =
             elements.FirstOrDefault(tf => tf.FeatureId == item.FeatureId && tf.TariffId == item.TariffId);
-        if (existingItem == null) throw new KeyNotFoundException();
+        if (existingItem == null)
+        {
+            _logger.LogError("Tried to remove non-existing item with FeatureId '{FeatureId}' and TariffId '{TariffId}'",
+                item.FeatureId, item.TariffId);
+            throw new KeyNotFoundException();
+        }
+
         await Task.Run(() => value.RemoveAt(elements.IndexOf(existingItem)));
+        _logger.LogDebug("Removed Feature '{FeatureId}' from Tariff '{TariffId}'", item.FeatureId, item.TariffId);
     }
 
     public async Task RemoveItem<T>(T item) where T : BaseTable
     {
-        if (!Database.TryGetValue(typeof(T).Name, out var value)) throw new KeyNotFoundException();
+        string tableName = typeof(T).Name;
+        if (!Database.TryGetValue(tableName, out var value)) throw new KeyNotFoundException();
         var elements = value.Select(q => (T)q).ToList();
         var existingItem = elements.FirstOrDefault(q => q.Id == item.Id);
-        if (existingItem == null) throw new KeyNotFoundException();
+        if (existingItem == null)
+        {
+            _logger.LogError("Tried to remove non-existing item with id '{Id}' from table '{TableName}'", item.Id,
+                tableName);
+            throw new KeyNotFoundException();
+        }
+
         await Task.Run(() => value.RemoveAt(elements.IndexOf(existingItem)));
+        _logger.LogDebug("Removed item with id '{id}' from '{TableName}'", item.Id, tableName);
     }
 
     public async Task<IEnumerable<T>> ListItems<T>()
     {
         var tableName = typeof(T).Name;
         var tableData = !Database.TryGetValue(tableName, out var value) ? new List<T>() : value.Select(q => (T)q);
-        // TODO: Das ist natürlich nicht wirklich async
         return await Task.FromResult(tableData);
     }
 
@@ -69,14 +97,21 @@ public class FakeDb
 
     public async Task<T> UpdateItem<T>(int id, T item) where T : BaseTable
     {
+        var tableName = typeof(T).Name;
         var allItems = (await ListItems<T>()).ToList();
         var existingItem = allItems.FirstOrDefault(itm => itm.Id == id);
-        if (existingItem == null) throw new KeyNotFoundException("No item with that id could be found");
+        if (existingItem == null)
+        {
+            _logger.LogError("Tried to update non-existing item with id '{Id}' from '{TableName}'", id, tableName);
+            throw new KeyNotFoundException("No item with that id could be found");
+        }
+
         allItems[allItems.IndexOf(existingItem)] = item;
+        _logger.LogDebug("Updated item with id '{Id}' on '{TableName}", id, tableName);
         return item;
     }
 
-    public int GetNextId<T>()
+    public static int GetNextId<T>()
     {
         var tableName = typeof(T).Name;
         return !Database.TryGetValue(tableName, out var value) ? 1 : value.Count + 1;

@@ -1,5 +1,4 @@
 using HaftpflichtDummy.BusinessLogic.Services.WebApiServices.Interfaces;
-using HaftpflichtDummy.Models;
 using HaftpflichtDummy.Models.InputModels;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -20,44 +19,55 @@ public class TariffController : Controller
     }
 
     [SwaggerOperation("Liefert alle gespeicherten Tarife")]
+    [SwaggerResponse(200, "OK")]
+    [SwaggerResponse(500, "Server-Fehler")]
     [HttpGet]
     public async Task<IActionResult> Get()
     {
-        return Ok(await _tariffService.GetAllTariffs());
+        var result = await _tariffService.GetAllTariffs();
+        return result.Success ? Ok(result) : Problem(result.ErrorMessage);
     }
 
-    // todo: Unterschiedliche Responsecodes je nach result exemplarisch nur hier. Wäre dann natürlich überall
-    [SwaggerOperation("Ein einzelner Tarif")]
+    [SwaggerOperation("Liefere einen einzelnen Tarif für die Id")]
     [SwaggerResponse(200, "OK")]
     [SwaggerResponse(404, "Tarif ist in der Datenbank nicht vorhanden")]
     [SwaggerResponse(500, "Server-Fehler")]
     [HttpGet("{id:int}")]
     public async Task<IActionResult> Get(int id)
     {
- 
-        var response = await _tariffService.GetSingleTariffById(id);
-        if (response.Success) return Ok(response);
-        return NotFound(response); // Je nach error dann natürlich ggf. 500 etc.
+        var result = await _tariffService.GetSingleTariffById(id);
+        if (result.Success) return Ok(result);
+        return NotFound(result); // Je nach error dann natürlich ggf. 500 etc.
     }
 
     [SwaggerOperation("Fügt eine Tarif hinzu")]
+    [SwaggerResponse(200, "OK")]
+    [SwaggerResponse(500, "Server-Fehler")]
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] CreateOrUpdateTariffInput tariff)
     {
-        return Ok(await _tariffService.CreateTariff(tariff));
+        var result = await _tariffService.CreateTariff(tariff);
+        return result.Success ? Ok(result) : Problem(result.ErrorMessage);
     }
 
     [SwaggerOperation("Verändert einen Tarif")]
+    [SwaggerResponse(200, "OK")]
+    [SwaggerResponse(404, "Tarif ist in der Datenbank nicht vorhanden")]
+    [SwaggerResponse(500, "Server-Fehler")]
     [HttpPut]
     public async Task<IActionResult> Put(int id, [FromBody] CreateOrUpdateTariffInput tariff)
     {
-        return Ok(await _tariffService.UpdateSingleTariff(id, tariff));
+        var result = await _tariffService.UpdateSingleTariff(id, tariff);
+        return result.Success ? Ok(result) : Problem(result.ErrorMessage);
     }
 
     [SwaggerOperation("Berechnet Tarife")]
+    [SwaggerResponse(200, "OK")]
+    [SwaggerResponse(500, "Server-Fehler")]
     [HttpPost("berechnen")]
     public async Task<IActionResult> Calculate([FromBody] CalculateTariffsInput filter)
     {
-        return Ok(await _tariffService.CalculateAllTariffs(filter));
+        var result = await _tariffService.CalculateAllTariffs(filter);
+        return result.Success ? Ok(result) : Problem(result.ErrorMessage);
     }
 }

@@ -1,5 +1,8 @@
+using Swashbuckle.AspNetCore.Annotations;
+
 namespace HaftpflichtDummy.Models;
 
+[SwaggerSchema("Leistungsmerkmal")]
 public class Feature
 {
     public int Id { get; set; }
