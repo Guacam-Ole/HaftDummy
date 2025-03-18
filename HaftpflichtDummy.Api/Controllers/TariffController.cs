@@ -22,7 +22,7 @@ public class TariffController : Controller
     [SwaggerResponse(200, "OK")]
     [SwaggerResponse(500, "Server-Fehler")]
     [HttpGet]
-    public async Task<IActionResult> Get()
+    public async Task<IActionResult> GetTariffs()
     {
         var result = await _tariffService.GetAllTariffs();
         return result.Success ? Ok(result) : Problem(result.ErrorMessage);
@@ -33,11 +33,24 @@ public class TariffController : Controller
     [SwaggerResponse(404, "Tarif ist in der Datenbank nicht vorhanden")]
     [SwaggerResponse(500, "Server-Fehler")]
     [HttpGet("{id:int}")]
-    public async Task<IActionResult> Get(int id)
+    public async Task<IActionResult> GetTariff(int id)
     {
         var result = await _tariffService.GetSingleTariffById(id);
         if (result.Success) return Ok(result);
         return NotFound(result); // Je nach error dann natürlich ggf. 500 etc.
+    }
+
+    
+    [SwaggerOperation("Liefere alle Features eines einen einzelnen Tarifs")]
+    [SwaggerResponse(200, "OK")]
+    [SwaggerResponse(404, "Tarif ist in der Datenbank nicht vorhanden")]
+    [SwaggerResponse(500, "Server-Fehler")]
+    [HttpGet("{id:int}/features")]
+    public async Task<IActionResult> GetFeatures(int id)
+    {
+        var result = await _tariffService.GetFeaturesFromTariff(id);
+        if (result.Success) return Ok(result);
+        return NotFound(result);
     }
 
     [SwaggerOperation("Fügt eine Tarif hinzu")]

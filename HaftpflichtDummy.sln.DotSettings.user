@@ -9,14 +9,12 @@
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003ATestInvoker_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003F_002E_002E_003F_002E_002E_003F_002E_002E_003F_002E_002E_003Fhome_003Fguacamole_003F_002Econfig_003FJetBrains_003FRider2024_002E3_003Fresharper_002Dhost_003FSourcesCache_003F5e14a4e27990972fa4ae94975603bd298aaf328ee083c03b10569ee4724d57_003FTestInvoker_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AToCollection_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003F_002E_002E_003F_002E_002E_003F_002E_002E_003F_002E_002E_003Fhome_003Fguacamole_003F_002Econfig_003FJetBrains_003FRider2024_002E3_003Fresharper_002Dhost_003FSourcesCache_003Fe3dbceecae5af84cbcd183e8765f2e6b1badd73eba26f72345dff9d73897684_003FToCollection_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/Environment/Hierarchy/Build/BuildTool/DotNetCliExePath/@EntryValue">/home/guacamole/.dotnet/dotnet</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=227a03c9_002D38d1_002D433f_002Da148_002D3b4dfdc305da/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="CalculationsShouldBeCorrect" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;Or&gt;
-    &lt;Project Location="/media/guacamole/data/git/softfair/HaftpflichtDummy/HaftpflichtDummy.UnitTests" Presentation="&amp;lt;HaftpflichtDummy.UnitTests&amp;gt;" /&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=227a03c9_002D38d1_002D433f_002Da148_002D3b4dfdc305da/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="CalculationsShouldBeCorrect" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Not&gt;
     &lt;TestAncestor&gt;
-      &lt;TestId&gt;xUnit::72788EAA-3677-4C9C-9949-12AF44C95723::net8.0::HaftpflichtDummy.IntegrationTests.TestApi.TestGetAllTariffs&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::9F7424BD-D34C-42BB-BC61-7C723975DFD4::net8.0::HaftpflichtDummy.UnitTests.TariffServiceTests&lt;/TestId&gt;
     &lt;/TestAncestor&gt;
-    &lt;Project Location="/media/guacamole/data/git/softfair/HaftpflichtDummy/HaftpflichtDummy.IntegrationTests" Presentation="&amp;lt;HaftpflichtDummy.IntegrationTests&amp;gt;" /&gt;
-  &lt;/Or&gt;
+  &lt;/Not&gt;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8f84ba05_002D5ab6_002D45a3_002D92c0_002Dc7306ee805dd/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="CreateInsurerCallsDatabaseAndCreatesIds" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
@@ -29,7 +27,7 @@
     &lt;TestId&gt;xUnit::9F7424BD-D34C-42BB-BC61-7C723975DFD4::net8.0::HaftpflichtDummy.UnitTests.TariffServiceTests.CalculationsShouldBeCorrect&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=bc0ea4bd_002D3219_002D4a85_002Da981_002D272b097529a9/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="TestGetAllTariffs" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=bc0ea4bd_002D3219_002D4a85_002Da981_002D272b097529a9/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="TestGetAllTariffs" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;Or&gt;
     &lt;Project Location="/media/guacamole/data/git/softfair/HaftpflichtDummy/HaftpflichtDummy.IntegrationTests" Presentation="&amp;lt;HaftpflichtDummy.IntegrationTests&amp;gt;" /&gt;
     &lt;Project Location="/media/guacamole/data/git/softfair/HaftpflichtDummy/HaftpflichtDummy.UnitTests" Presentation="&amp;lt;HaftpflichtDummy.UnitTests&amp;gt;" /&gt;

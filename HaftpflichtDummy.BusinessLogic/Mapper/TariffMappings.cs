@@ -19,20 +19,6 @@ public static class TariffMappings
             ValidFrom = tariff.ValidFrom
         };
 
-    public static Tariff MapToTariff(this DbModels.Tariff tariff,
-        IEnumerable<DbModels.TariffFeature> tariffFeatures, List<DbModels.Feature> features)
-    {
-        var retTariff = MapToTariff(tariff);
-        retTariff.Features.AddRange(
-            tariffFeatures.Where(feature => feature.TariffId == tariff.Id).Select(tariffFeature =>
-                features.First(f => f.Id == tariffFeature.FeatureId)
-                    .MapToFeature(tariffFeature.IsActive))
-        );
-
-
-        return retTariff;
-    }
-
     public static Feature MapToFeature(this DbModels.Feature feature, bool isEnabled)
         =>
             new()

@@ -9,11 +9,4 @@ public class Tariff
     public int? Parent { get; set; }
     public decimal Provision { get; set; }
     public DateTime ValidFrom { get; set; }
-
-    public List<Feature> Features { get; } = [];
-
-    public List<Feature> ActiveFeatures
-    {
-        get { return Features.Where(f => f.IsActive).ToList(); }
-    }
 }

@@ -20,6 +20,13 @@ public interface ITariffService
     Task<Payload<Tariff>> GetSingleTariffById(int id);
 
     /// <summary>
+    /// Get all Features from a tariff
+    /// </summary>
+    /// <param name="tariffId">TariffId</param>
+    /// <returns>List of Features</returns>
+    Task<Payload<List<Feature>>> GetFeaturesFromTariff(int tariffId);
+    
+    /// <summary>
     /// Alle Tarife ausgeben
     /// </summary>
     /// <returns>Liste der Tarife</returns>

@@ -1,10 +1,12 @@
 using HaftpflichtDummy.BusinessLogic.Mapper;
 using HaftpflichtDummy.BusinessLogic.Services.WebApiServices.Interfaces;
+using HaftpflichtDummy.DataProviders.Repositories.Database;
 using DbModels = HaftpflichtDummy.DataProviders.Models.Database;
 using HaftpflichtDummy.DataProviders.Repositories.Database.Interfaces;
 using HaftpflichtDummy.Models;
 using HaftpflichtDummy.Models.InputModels;
 using Microsoft.Extensions.Logging;
+using Insurer = HaftpflichtDummy.Models.Insurer;
 using Tariff = HaftpflichtDummy.Models.Tariff;
 
 namespace HaftpflichtDummy.BusinessLogic.Services.WebApiServices;
@@ -92,6 +94,17 @@ public class TariffService : ITariffService
         }
     }
 
+    public async Task<Payload<List<Feature>>> GetFeaturesFromTariff(int tariffId)
+    {
+        var dbTariff = await _databaseTariff.GetTariffById(tariffId);
+        if (dbTariff == null) return _payloadService.CreateError<List<Feature>>("Tarif nicht vorhanden");
+
+        var dbFeatures = await _databaseTariff.GetAllFeatures();
+        var dbTariffFeatures = (await _databaseTariff.GetAllTariffFeatures()).Where(tf => tf.TariffId == tariffId);
+        var tariffFeatures = GetFeaturesFromTariff(tariffId, dbFeatures.ToList(), dbTariffFeatures.ToList());
+        return _payloadService.CreateSuccess(tariffFeatures);
+    }
+
     public async Task<Payload<List<Tariff>>> GetAllTariffs()
     {
         try
@@ -130,6 +143,14 @@ public class TariffService : ITariffService
         }
     }
 
+    private static List<Feature> GetFeaturesFromTariff(int tariffId, List<DbModels.Feature> dbFeatures,
+        List<DbModels.TariffFeature> dbTariffFeatures)
+    {
+        return dbTariffFeatures.Where(f => f.TariffId == tariffId).Select(t =>
+            dbFeatures.First(dbf => dbf.Id == t.FeatureId).MapToFeature(t.IsActive)).ToList();
+    }
+
+
     public async Task<Payload<List<TariffCalculation>>> CalculateAllTariffs(CalculateTariffsInput filter)
     {
         // Todo: Annahme: Bausteintarife sind immer genau einem Tarif zugeordnet. Ein Bausteintarif kann nur 
@@ -137,8 +158,8 @@ public class TariffService : ITariffService
         // Todo: Bausteintarife besitzen (keine Rekursion)
 
         IEnumerable<DbModels.Tariff> dbTariffs;
-        IEnumerable<DbModels.Feature> dbFeatures;
-        IEnumerable<DbModels.TariffFeature> dbTariffFeatures;
+        List<DbModels.Feature> dbFeatures;
+        List<DbModels.TariffFeature> dbTariffFeatures;
 
         IEnumerable<Insurer> insurers;
 
@@ -146,9 +167,9 @@ public class TariffService : ITariffService
         // Getting Data from Database:
         try
         {
-            dbTariffs = await _databaseTariff.GetAllTariffs();
-            dbFeatures = await _databaseTariff.GetAllFeatures();
-            dbTariffFeatures = await _databaseTariff.GetAllTariffFeatures();
+            dbTariffs = (await _databaseTariff.GetAllTariffs()).ToList();
+            dbFeatures = (await _databaseTariff.GetAllFeatures()).ToList();
+            dbTariffFeatures = (await _databaseTariff.GetAllTariffFeatures()).ToList();
             var allDbInsurers = await _databaseInsurer.SelectAllInsurers();
             insurers = allDbInsurers.Select(dbi => dbi.MapToInsurer());
         }
@@ -158,23 +179,26 @@ public class TariffService : ITariffService
             return _payloadService.CreateError<List<TariffCalculation>>("Datenbankfehler");
         }
 
+
         try
         {
             // Retrieve only Tariffs that have a ValidFrom<Today:
             var activeTariffs = dbTariffs.Where(dbt => dbt.ValidFrom <= DateTime.Today)
-                .Select(dbt => dbt.MapToTariff(dbTariffFeatures, dbFeatures.ToList()))
+                .Select(dbt => dbt.MapToTariff())
                 .ToList();
 
 
             // Adding base Tariffs without Modules:
             calculations.AddRange(activeTariffs.Where(t => t.Parent == null).Select(q =>
-                CalculateForTariff(q, insurers.Single(ins => ins.Id == q.Insurer).Name)));
+                CalculateForTariff(q, GetFeaturesFromTariff(q.Id, dbFeatures, dbTariffFeatures)
+                    , insurers.Single(ins => ins.Id == q.Insurer).Name)));
 
             // Adding moduleTariffs:
             foreach (var moduleTariff in activeTariffs.Where(t => t.Parent != null))
             {
                 var parent = calculations.Single(p => p.TariffId == moduleTariff.Parent);
-                var moduleCalculation = CalculateForTariff(moduleTariff, parent.InsurerName, parent);
+                var moduleCalculation = CalculateForTariff(moduleTariff,
+                    GetFeaturesFromTariff(moduleTariff.Id, dbFeatures, dbTariffFeatures), parent.InsurerName, parent);
                 calculations.Add(moduleCalculation);
             }
 
@@ -205,7 +229,7 @@ public class TariffService : ITariffService
         }
     }
 
-    private static TariffCalculation CalculateForTariff(Tariff tariff, string insurerName,
+    private static TariffCalculation CalculateForTariff(Tariff tariff, List<Feature> features, string insurerName,
         TariffCalculation? parent = null)
     {
         var calculation = new TariffCalculation
@@ -224,21 +248,21 @@ public class TariffService : ITariffService
 
         if (parent == null)
         {
-            calculation.Features = tariff.Features.Clone();
+            calculation.Features = features.Clone();
         }
         else
         {
             calculation.Features = parent.Features.Clone();
 
             // Add additional features that are not already in parent:
-            foreach (var moduleFeature in tariff.Features.Where(moduleFeature =>
+            foreach (var moduleFeature in features.Where(moduleFeature =>
                          calculation.Features.All(feature => feature.Id != moduleFeature.Id)))
             {
                 calculation.Features.Add(moduleFeature);
             }
 
             // Enable features that have been disabled in parent but are enabled in module:
-            foreach (var activeModuleFeature in tariff.ActiveFeatures)
+            foreach (var activeModuleFeature in features.Where(f => f.IsActive))
             {
                 calculation.Features.First(feature => feature.Id == activeModuleFeature.Id).IsActive = true;
             }
