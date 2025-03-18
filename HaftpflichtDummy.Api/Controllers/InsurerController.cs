@@ -8,12 +8,12 @@ namespace HaftpflichtDummy.Api.Controllers;
 
 [ApiController]
 [Route("api/gesellschaften")]
-public class InsurerController : Controller
+public class InsurersController : Controller
 {
     private readonly ILogger<Insurer> _logger;
     private readonly IInsurerService _insurerService;
 
-    public InsurerController(ILogger<Insurer> logger, IInsurerService insurerService)
+    public InsurersController(ILogger<Insurer> logger, IInsurerService insurerService)
     {
         _logger = logger;
         _insurerService = insurerService;

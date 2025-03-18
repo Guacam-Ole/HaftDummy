@@ -7,12 +7,12 @@ namespace HaftpflichtDummy.Api.Controllers;
 
 [ApiController]
 [Route("api/tarife")]
-public class TariffController : Controller
+public class TariffsController : Controller
 {
-    private readonly ILogger<TariffController> _logger;
+    private readonly ILogger<TariffsController> _logger;
     private readonly ITariffService _tariffService;
 
-    public TariffController(ILogger<TariffController> logger, ITariffService tariffService)
+    public TariffsController(ILogger<TariffsController> logger, ITariffService tariffService)
     {
         _logger = logger;
         _tariffService = tariffService;
@@ -22,7 +22,7 @@ public class TariffController : Controller
     [SwaggerResponse(200, "OK")]
     [SwaggerResponse(500, "Server-Fehler")]
     [HttpGet]
-    public async Task<IActionResult> GetTariffs()
+    public async Task<IActionResult> Get()
     {
         var result = await _tariffService.GetAllTariffs();
         return result.Success ? Ok(result) : Problem(result.ErrorMessage);
@@ -33,7 +33,7 @@ public class TariffController : Controller
     [SwaggerResponse(404, "Tarif ist in der Datenbank nicht vorhanden")]
     [SwaggerResponse(500, "Server-Fehler")]
     [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetTariff(int id)
+    public async Task<IActionResult> Get(int id)
     {
         var result = await _tariffService.GetSingleTariffById(id);
         if (result.Success) return Ok(result);
@@ -57,7 +57,7 @@ public class TariffController : Controller
     [SwaggerResponse(200, "OK")]
     [SwaggerResponse(500, "Server-Fehler")]
     [HttpPost]
-    public async Task<IActionResult> PostTariff([FromBody] CreateOrUpdateTariffInput tariff)
+    public async Task<IActionResult> Post([FromBody] CreateOrUpdateTariffInput tariff)
     {
         var result = await _tariffService.CreateTariff(tariff);
         return result.Success ? Ok(result) : Problem(result.ErrorMessage);
@@ -68,7 +68,7 @@ public class TariffController : Controller
     [SwaggerResponse(404, "Tarif ist in der Datenbank nicht vorhanden")]
     [SwaggerResponse(500, "Server-Fehler")]
     [HttpPut]
-    public async Task<IActionResult> PutTariff(int id, [FromBody] CreateOrUpdateTariffInput tariff)
+    public async Task<IActionResult> Put(int id, [FromBody] CreateOrUpdateTariffInput tariff)
     {
         var result = await _tariffService.UpdateSingleTariff(id, tariff);
         return result.Success ? Ok(result) : Problem(result.ErrorMessage);
@@ -78,7 +78,7 @@ public class TariffController : Controller
     [SwaggerResponse(200, "OK")]
     [SwaggerResponse(500, "Server-Fehler")]
     [HttpPost("berechnen")]
-    public async Task<IActionResult> CalculateTariffs([FromBody] CalculateTariffsInput filter)
+    public async Task<IActionResult> Calculate([FromBody] CalculateTariffsInput filter)
     {
         var result = await _tariffService.CalculateAllTariffs(filter);
         return result.Success ? Ok(result) : Problem(result.ErrorMessage);

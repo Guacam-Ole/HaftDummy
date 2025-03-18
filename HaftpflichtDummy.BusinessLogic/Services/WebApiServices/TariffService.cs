@@ -190,7 +190,8 @@ public class TariffService : ITariffService
 
             // Adding base Tariffs without Modules:
             calculations.AddRange(activeTariffs.Where(t => t.Parent == null).Select(q =>
-                CalculateForTariff(q, GetFeaturesFromTariff(q.Id, dbFeatures, dbTariffFeatures)
+                CalculateForTariff(q, 
+                    GetFeaturesFromTariff(q.Id, dbFeatures, dbTariffFeatures)
                     , insurers.Single(ins => ins.Id == q.Insurer).Name)));
 
             // Adding moduleTariffs:

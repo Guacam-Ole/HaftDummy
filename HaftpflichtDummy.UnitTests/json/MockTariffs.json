@@ -2,7 +2,7 @@
     {
         "id": 1,
         "name": "Schiffsversicherung",
-        "insurer": 1,
+        "insurerId": 1,
         "validFrom": "1900-01-01",
         "provision": 100
     },
@@ -10,21 +10,21 @@
         "id": 2,
         "parentTariff": 1,
         "name": "Schiffsversicherung MAXI",
-        "insurer": 1,
+        "insurerId": 1,
         "validFrom": "1900-01-01",
         "provision": 1000
     },
     {
         "id": 3,
         "name": "Zukunftsversicherung",
-        "insurer": 1,
+        "insurerId": 1,
         "validFrom": "2525-01-01",
         "provision": 4711
     },
     {
         "id": 4,
         "name": "Safe Workspace Paket",
-        "insurer": 2,
+        "insurerId": 2,
         "validFrom": "1900-01-01",
         "provision": 450
     }
