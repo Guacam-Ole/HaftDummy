@@ -23,7 +23,7 @@ public class InsurersController : Controller
     [SwaggerResponse(200, "OK")]
     [SwaggerResponse(500, "Server-Fehler")]
     [HttpGet]
-    public async Task<IActionResult> GetInsurers()
+    public async Task<IActionResult> Get()
     {
         var result = await _insurerService.GetAllInsurers();
         return result.Success ? Ok(result) : Problem(result.ErrorMessage);
@@ -33,7 +33,7 @@ public class InsurersController : Controller
     [SwaggerResponse(200, "OK")]
     [SwaggerResponse(500, "Server-Fehler")]
     [HttpPost]
-    public async Task<IActionResult> PostInsurer([FromBody] CreateOrUpdateInsurerInput orUpdateInsurer)
+    public async Task<IActionResult> Post([FromBody] CreateOrUpdateInsurerInput orUpdateInsurer)
     {
         var result = await _insurerService.CreateInsurer(orUpdateInsurer.Name);
         return result.Success ? Ok(result) : Problem(result.ErrorMessage);

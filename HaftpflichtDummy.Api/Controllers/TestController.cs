@@ -30,7 +30,7 @@ public class TestController : Controller
         _fakeDb.BulkReplace("Feature",
             JsonConvert.DeserializeObject<List<HaftpflichtDummy.DataProviders.Models.Database.Feature>>(
                 System.IO.File.ReadAllText(Path.Combine(AppContext.BaseDirectory,
-                "json/MockFeatures.json"))));
+                "json/MockFeatures.json")))!);
         return Ok(true);
     }
 }
