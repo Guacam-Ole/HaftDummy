@@ -57,7 +57,7 @@ public class TariffController : Controller
     [SwaggerResponse(200, "OK")]
     [SwaggerResponse(500, "Server-Fehler")]
     [HttpPost]
-    public async Task<IActionResult> Post([FromBody] CreateOrUpdateTariffInput tariff)
+    public async Task<IActionResult> PostTariff([FromBody] CreateOrUpdateTariffInput tariff)
     {
         var result = await _tariffService.CreateTariff(tariff);
         return result.Success ? Ok(result) : Problem(result.ErrorMessage);
@@ -68,7 +68,7 @@ public class TariffController : Controller
     [SwaggerResponse(404, "Tarif ist in der Datenbank nicht vorhanden")]
     [SwaggerResponse(500, "Server-Fehler")]
     [HttpPut]
-    public async Task<IActionResult> Put(int id, [FromBody] CreateOrUpdateTariffInput tariff)
+    public async Task<IActionResult> PutTariff(int id, [FromBody] CreateOrUpdateTariffInput tariff)
     {
         var result = await _tariffService.UpdateSingleTariff(id, tariff);
         return result.Success ? Ok(result) : Problem(result.ErrorMessage);
@@ -78,7 +78,7 @@ public class TariffController : Controller
     [SwaggerResponse(200, "OK")]
     [SwaggerResponse(500, "Server-Fehler")]
     [HttpPost("berechnen")]
-    public async Task<IActionResult> Calculate([FromBody] CalculateTariffsInput filter)
+    public async Task<IActionResult> CalculateTariffs([FromBody] CalculateTariffsInput filter)
     {
         var result = await _tariffService.CalculateAllTariffs(filter);
         return result.Success ? Ok(result) : Problem(result.ErrorMessage);
